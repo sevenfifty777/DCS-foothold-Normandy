@@ -21,10 +21,10 @@ release/
 archive/
 
 # Ignore zip archives
-*.zip
+# *.zip
 
 # Ignore large binary mod files (RAR archives)
-*.rar
+# *.rar
 
 # Ignore DCS runtime files (specific to your bot)
 chatcmd.txt
