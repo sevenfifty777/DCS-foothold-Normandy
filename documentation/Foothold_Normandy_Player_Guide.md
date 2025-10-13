@@ -32,18 +32,6 @@ When you spawn at any airfield or carrier, you will receive:
 - **Active Runway Information** (for airbases)
 - **BRC Information** (for carrier operations)
 
-### Initial Message
-
-Wait 60 seconds after spawning for detailed mission briefing including:
-- Your assigned callsign and IFF
-- Current weather conditions
-- Tactical information
-- Reminder to check supplies menu (F10)
-
-### Changing Callsign
-
-After spawning, you have **60 seconds** to change your callsign via the radio menu if desired.
-
 ---
 
 ## Territory Control System
@@ -79,7 +67,8 @@ Zones are captured when:
 Neutral zones can be captured by:
 - Using **Emergency Capture** from F10 menu (500 credits)
 - Waiting for automatic supply convoy arrival
-- C47 cargo delivery
+- C47 cargo delivery (not landing due to DCS , orbiting in zone to capture)
+- Train & Trucks supply convoy (train will continusly move between zone , due to DCS it can'y be late activated)
 
 ---
 
@@ -101,9 +90,10 @@ Neutral zones can be captured by:
 ### Supply Routes (Arrows on Map)
 
 **Blue Arrow (Road Supply):**
-- Convoy truck routes between zones
+- Convoy trains & truck routes between zones
 - Vulnerable to air attack
 - Slower but more flexible
+- Air supply by C-47
 
 **Train Icon (Railway Supply):**
 - Fast, efficient supply lines
@@ -164,16 +154,15 @@ Railway stations are **hidden subzones** near major airbases and cities. Look fo
 - Train depot buildings
 - Fuel tanks near tracks
 - Static train cars
+- photos of targets are available in kneeboards
 
 **Tip:** Use low-altitude reconnaissance to locate exact positions before bombing runs.
 
 ### Train Groups
 
 **Active Train Routes:**
-- Visible on map as moving ground units
 - Carry supplies between zones
 - **1,000 credit bonus** for destroying enemy trains
-- Automatically restored from save if destroyed
 
 ---
 
@@ -190,7 +179,7 @@ Events occur based on EventCommander schedule:
 
 #### 1. **Bomber Red (Enemy Strike)**
 
-**Frequency:** Every 35 minutes minimum
+**Frequency:** Every ~35 minutes minimum
 
 **Description:**
 - 6x enemy bombers spawn from Red airbase
@@ -210,10 +199,10 @@ Events occur based on EventCommander schedule:
 
 #### 2. **Bomber Blue (Allied Strike)**
 
-**Frequency:** Every 30 minutes minimum
+**Frequency:** Every ~30 minutes minimum
 
 **Description:**
-- 4x Allied bombers spawn from Blue airbase
+- 4x Allied bombers B-17G spawn from Blue airbase
 - Target: Random Red zone
 - 2x Fighter escort
 - **Enemy interceptors will scramble!**
@@ -233,11 +222,11 @@ Events occur based on EventCommander schedule:
 
 #### 3. **Navy Artillery Strike**
 
-**Frequency:** Every 40 minutes minimum
+**Frequency:** Every ~40 minutes minimum
 
 **Description:**
 - Naval strike group approaches French coast
-- Targets: Saint-Pierre, Carpiquet areas
+- Targets: Saint-Pierre areas
 - Vulnerable to air attack
 
 **Player Mission:**
@@ -250,7 +239,7 @@ Events occur based on EventCommander schedule:
 
 #### 4. **V1 Rocket Attack**
 
-**Frequency:** Every 45 minutes minimum
+**Frequency:** Every ~45 minutes minimum
 
 **Description:**
 - V1 rockets launch toward Blue zones
@@ -288,7 +277,8 @@ Each V1 site has TWO critical targets:
 #### 2. **Fuel Storage Tanks**
 - Static fuel tank ("toplivo-bak" model)
 - One per site
-- **Required for site destruction bonus**
+- Destruction of fule tank will simulate destruction of launcher and Fire control with multiple explosions
+- **Required for site destruction bonus and disable the zone**
 
 ### Complete Destruction Process
 
@@ -296,7 +286,7 @@ Each V1 site has TWO critical targets:
 
 **Step 2:** Destroy all launcher units
 - Bomb or strafe launcher vehicles
-- Site will be still active unless fuel destroyed at mission restart (but no more launch possible if launcher was destroyed)
+- Site will be still active unless fuel tank is destroyed at mission restart (but no more launch possible if launcher was destroyed)
 
 **Step 3:** Destroy fuel tank
 - Usually near launchers
@@ -409,7 +399,6 @@ Capturing these provides **continuous credit income**:
 **Air Support (F10 → Shop):**
 - Dynamic CAP: 250 credits
 - Dynamic CAS: 250 credits
-- Cruise Missiles: Variable (12 available)
 
 **Reconnaissance:**
 - Smoke Markers: 20 credits
@@ -489,18 +478,12 @@ The mission system automatically generates objectives:
 - Get ATIS for [Airbase]
   - Wind, altimeter, runway info
 
-#### **Change Call Sign** (60 seconds after spawn)
-- Select from available callsigns
-- Assigned IFF codes
-- Per-zone callsign management
-
 #### **Shop Menu** (Credits required)
 - Resupply friendly Zone: 200 cr
 - Fully Upgrade Friendly Zone: 1,000 cr
 - Emergency capture neutral zone: 500 cr
 - Dynamic CAP: 250 cr
 - Dynamic CAS: 250 cr
-- Cruise Missiles: (12 available)
 - Smoke markers: 20 cr
 
 ### ATIS Information
@@ -548,7 +531,7 @@ The mission system automatically generates objectives:
 1. Purchase from F10 menu
 2. Select target enemy zone
 3. AI finds closest Blue zone (20+ NM away)
-4. A-10s spawn and attack target
+4. Mosquitos spawn and attack target
 5. Provides ground support
 
 **Best Used For:**
@@ -599,7 +582,7 @@ The mission system automatically generates objectives:
 3. **Coordinated Strikes**
    - Time attacks with bomber events
    - Use Dynamic CAS + player CAS
-   - Clear SAMs before bombers arrive
+   - Clear air defenses before bombers arrive
    - Escort is force multiplier
 
 4. **Income Strategy**
@@ -609,21 +592,6 @@ The mission system automatically generates objectives:
    - Passive income funds the war
 
 ### Carrier Operations
-
-**USS George Washington (CVN-73) / USS Abraham Lincoln (CVN-72)**
-
-**TACAN:** 73X / 72X
-
-**Pattern:**
-- Check BRC from ATIS
-- Initial 7 miles
-- Push Tactical Channel 3
-- Follow LSO calls
-
-**Recovery:**
-- Use ATIS for wind/BRC
-- Altimeter critical
-- Expect AI traffic
 
 ---
 
@@ -693,11 +661,6 @@ All Red zones captured or destroyed
 - Zone surrounded - clear route
 - Use Emergency Capture (500 cr)
 
-**"Can't change callsign"**
-- 60 second window expired
-- Rejoin mission to change
-- Menu disappears after time limit
-
 **"CAP mission not generating"**
 - No enemy aircraft in area
 - Previous CAP on cooldown
@@ -732,8 +695,9 @@ All Red zones captured or destroyed
 
 ## Credits
 
-**Mission Design:** Foothold Framework
+**Original Mission Developer:** Leka - Creator of the Foothold Framework
 **Custom Implementation:** WWII Normandy Adaptation
+**V1 Launcher Mod:** SUNTSAG - Creator of the WW2 V1 German Rocket Launcher mod
 **Scripts:**
 - Moose Framework
 - BattleCommander System
@@ -750,7 +714,6 @@ All Red zones captured or destroyed
 - **Allied HQ:** London, BigginHill, Farnborough
 - **Axis HQ:** Paris, Orly
 - **Strategic Ports:** Cherbourg, Calais, Le Havre, Dover
-- **Carrier:** CVN-73 (73X) / CVN-72 (72X)
 
 ### Quick Credits
 - Infantry/Vehicle: 10 cr
