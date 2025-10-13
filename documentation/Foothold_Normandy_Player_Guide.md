@@ -68,7 +68,7 @@ Neutral zones can be captured by:
 - Using **Emergency Capture** from F10 menu (500 credits)
 - Waiting for automatic supply convoy arrival
 - C47 cargo delivery (not landing due to DCS , orbiting in zone to capture)
-- Train & Trucks supply convoy (train will continusly move between zone , due to DCS it can'y be late activated)
+- Train & Trucks supply convoy (train will continuously move between zone , due to DCS it can'y be late activated)
 
 ---
 
