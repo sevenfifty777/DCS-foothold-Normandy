@@ -23,6 +23,9 @@ archive/
 # Ignore zip archives
 *.zip
 
+# Ignore large binary mod files (RAR archives)
+*.rar
+
 # Ignore DCS runtime files (specific to your bot)
 chatcmd.txt
 kickqueue.txt
