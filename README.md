@@ -28,7 +28,15 @@ Detailed guides and information:
 - **Players**: 2-32 recommended
 - **Type**: Dynamic Territory Control with Persistence
 
-## 🔧 Required Mods
+## 🔧 Required Pack/Mods
+
+### DCS: WWII Assets Pack
+The DCS: World War II Assets Pack provides numerous World War II air, land and sea assets to populate the Normandy and other DCS World maps with. Eagle Dynamics has spent several years creating an entirely new set of combat vehicles to support DCS: World War II, and each unit is created with an exceptional level of detail and accuracy.
+
+In addition to populating World War II era maps, this asset pack can be used with all other DCS World map modules.
+
+- **Type**: Official DCS Module (Required)
+- **Available**: DCS E-Shop and Steam
 
 ### V1 Rocket Launcher
 The V1 German Rocket Launcher mod is essential for the mission's V1 rocket attack mechanics.
@@ -111,14 +119,6 @@ Railway station target references available in [`images/`](images/):
 3. **Read Player Guide** for detailed instructions
 4. **Launch Mission** in DCS World
 5. **Check F10 Menu** for ATIS, objectives, and shop options
-
-## 💡 Gameplay Tips
-
-- Start at BigginHill or Farnborough for new players
-- Escort supply convoys for easy credits
-- Target railway stations for strategic advantage
-- Use F10 menu for ATIS weather and airfield information
-- Coordinate with other players for maximum effectiveness
 
 ## 👥 Credits
 
