@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Foothold_Normandy_Player_Guide.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* https://github.com/microsoft/vscode/blob/master/extensions/markdown-language-features/media/markdown.css */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+body {
+	font-family: var(--vscode-markdown-font-family, -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif);
+	font-size: var(--vscode-markdown-font-size, 14px);
+	padding: 0 26px;
+	line-height: var(--vscode-markdown-line-height, 22px);
+	word-wrap: break-word;
+}
+
+#code-csp-warning {
+	position: fixed;
+	top: 0;
+	right: 0;
+	color: white;
+	margin: 16px;
+	text-align: center;
+	font-size: 12px;
+	font-family: sans-serif;
+	background-color:#444444;
+	cursor: pointer;
+	padding: 6px;
+	box-shadow: 1px 1px 1px rgba(0,0,0,.25);
+}
+
+#code-csp-warning:hover {
+	text-decoration: none;
+	background-color:#007acc;
+	box-shadow: 2px 2px 2px rgba(0,0,0,.25);
+}
+
+body.scrollBeyondLastLine {
+	margin-bottom: calc(100vh - 22px);
+}
+
+body.showEditorSelection .code-line {
+	position: relative;
+}
+
+body.showEditorSelection .code-active-line:before,
+body.showEditorSelection .code-line:hover:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -12px;
+	height: 100%;
+}
+
+body.showEditorSelection li.code-active-line:before,
+body.showEditorSelection li.code-line:hover:before {
+	left: -30px;
+}
+
+.vscode-light.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.15);
+}
+
+.vscode-light.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(0, 0, 0, 0.40);
+}
+
+.vscode-light.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-dark.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.4);
+}
+
+.vscode-dark.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 255, 255, 0.60);
+}
+
+.vscode-dark.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+.vscode-high-contrast.showEditorSelection .code-active-line:before {
+	border-left: 3px solid rgba(255, 160, 0, 0.7);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line:hover:before {
+	border-left: 3px solid rgba(255, 160, 0, 1);
+}
+
+.vscode-high-contrast.showEditorSelection .code-line .code-line:hover:before {
+	border-left: none;
+}
+
+img {
+	max-width: 100%;
+	max-height: 100%;
+}
+
+a {
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:focus,
+input:focus,
+select:focus,
+textarea:focus {
+	outline: 1px solid -webkit-focus-ring-color;
+	outline-offset: -1px;
+}
+
+hr {
+	border: 0;
+	height: 2px;
+	border-bottom: 2px solid;
+}
+
+h1 {
+	padding-bottom: 0.3em;
+	line-height: 1.2;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+}
+
+h1, h2, h3 {
+	font-weight: normal;
+}
+
+table {
+	border-collapse: collapse;
+}
+
+table > thead > tr > th {
+	text-align: left;
+	border-bottom: 1px solid;
+}
+
+table > thead > tr > th,
+table > thead > tr > td,
+table > tbody > tr > th,
+table > tbody > tr > td {
+	padding: 5px 10px;
+}
+
+table > tbody > tr + tr > td {
+	border-top: 1px solid;
+}
+
+blockquote {
+	margin: 0 7px 0 5px;
+	padding: 0 16px 0 10px;
+	border-left-width: 5px;
+	border-left-style: solid;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
+	font-size: 1em;
+	line-height: 1.357em;
+}
+
+body.wordWrap pre {
+	white-space: pre-wrap;
+}
+
+pre:not(.hljs),
+pre.hljs code > div {
+	padding: 16px;
+	border-radius: 3px;
+	overflow: auto;
+}
+
+pre code {
+	color: var(--vscode-editor-foreground);
+	tab-size: 4;
+}
+
+/** Theming */
+
+.vscode-light pre {
+	background-color: rgba(220, 220, 220, 0.4);
+}
+
+.vscode-dark pre {
+	background-color: rgba(10, 10, 10, 0.4);
+}
+
+.vscode-high-contrast pre {
+	background-color: rgb(0, 0, 0);
+}
+
+.vscode-high-contrast h1 {
+	border-color: rgb(0, 0, 0);
+}
+
+.vscode-light table > thead > tr > th {
+	border-color: rgba(0, 0, 0, 0.69);
+}
+
+.vscode-dark table > thead > tr > th {
+	border-color: rgba(255, 255, 255, 0.69);
+}
+
+.vscode-light h1,
+.vscode-light hr,
+.vscode-light table > tbody > tr + tr > td {
+	border-color: rgba(0, 0, 0, 0.18);
+}
+
+.vscode-dark h1,
+.vscode-dark hr,
+.vscode-dark table > tbody > tr + tr > td {
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+</style>
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*
+ * Markdown PDF CSS
+ */
+
+ body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "Meiryo";
+	padding: 0 12px;
+}
+
+pre {
+	background-color: #f8f8f8;
+	border: 1px solid #cccccc;
+	border-radius: 3px;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	overflow-wrap: break-word;
+}
+
+pre:not(.hljs) {
+	padding: 23px;
+	line-height: 19px;
+}
+
+blockquote {
+	background: rgba(127, 127, 127, 0.1);
+	border-color: rgba(0, 122, 204, 0.5);
+}
+
+.emoji {
+	height: 1.4em;
+}
+
+code {
+	font-size: 14px;
+	line-height: 19px;
+}
+
+/* for inline code */
+:not(pre):not(.hljs) > code {
+	color: #C9AE75; /* Change the old color so it seems less like an error */
+	font-size: inherit;
+}
+
+/* Page Break : use <div class="page"/> to insert page break
+-------------------------------------------------------- */
+.page {
+	page-break-after: always;
+}
+
+</style>
+
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="wwii-normandy-foothold---player-guide">WWII Normandy Foothold - Player Guide</h1>
+<h2 id="mission-overview">Mission Overview</h2>
+<p>Welcome to the WWII Normandy Foothold dynamic campaign! This is a persistent territory control mission where the Blue coalition (Allies) fights to liberate France from Red coalition (Axis) control. Your actions directly impact the outcome of the campaign.</p>
+<hr>
+<h2 id="table-of-contents">Table of Contents</h2>
+<ol>
+<li><a href="#getting-started">Getting Started</a></li>
+<li><a href="#territory-control-system">Territory Control System</a></li>
+<li><a href="#supply--logistics">Supply &amp; Logistics</a></li>
+<li><a href="#railway-system">Railway System</a></li>
+<li><a href="#dynamic-events">Dynamic Events</a></li>
+<li><a href="#v1-rocket-sites">V1 Rocket Sites</a></li>
+<li><a href="#strategic-objectives">Strategic Objectives</a></li>
+<li><a href="#credits--economy">Credits &amp; Economy</a></li>
+<li><a href="#mission-tracking">Mission Tracking</a></li>
+<li><a href="#radio-menus--features">Radio Menus &amp; Features</a></li>
+<li><a href="#ai-support">AI Support</a></li>
+</ol>
+<hr>
+<h2 id="getting-started">Getting Started</h2>
+<h3 id="spawning-in">Spawning In</h3>
+<p>When you spawn at any airfield or carrier, you will receive:</p>
+<ul>
+<li><strong>Automatic Callsign Assignment</strong> with IFF code</li>
+<li><strong>Weather Information</strong> (wind, temperature, altimeter)</li>
+<li><strong>Active Runway Information</strong> (for airbases)</li>
+<li><strong>BRC Information</strong> (for carrier operations)</li>
+</ul>
+<hr>
+<h2 id="territory-control-system">Territory Control System</h2>
+<h3 id="zone-types">Zone Types</h3>
+<p><strong>Capturable Zones:</strong></p>
+<ul>
+<li><strong>Airbases</strong> - Can be captured and upgraded with supplies</li>
+<li><strong>Cities</strong> - Strategic locations providing income</li>
+<li><strong>Ports</strong> - Critical for naval operations</li>
+<li><strong>Railway Stations</strong> - Supply network hubs</li>
+</ul>
+<p><strong>Special Zones:</strong></p>
+<ul>
+<li><strong>Radar Sites</strong> - Provide enemy early warning (Pointe des Groins, Pointe du Hoc, Cap Gris-Nez)</li>
+<li><strong>V1 Launch Sites</strong> - Active rocket launching facilities</li>
+<li><strong>Hidden Railway Subzones</strong> - Automatically sync with parent zone control</li>
+</ul>
+<h3 id="zone-status">Zone Status</h3>
+<ul>
+<li><strong>Blue (Allied)</strong> - Friendly territory</li>
+<li><strong>Red (Axis)</strong> - Enemy territory</li>
+<li><strong>Neutral (Gray)</strong> - Contested/unoccupied</li>
+</ul>
+<h3 id="capturing-zones">Capturing Zones</h3>
+<p><strong>Ground Units:</strong>
+Zones are captured when:</p>
+<ol>
+<li>All enemy units in the zone are destroyed</li>
+<li>Friendly ground units enter and hold the zone</li>
+<li>Supply convoys successfully reach neutral zones</li>
+</ol>
+<p><strong>Supply Delivery:</strong>
+Neutral zones can be captured by:</p>
+<ul>
+<li>Using <strong>Emergency Capture</strong> from F10 menu (500 credits)</li>
+<li>Waiting for automatic supply convoy arrival</li>
+<li>C47 cargo delivery (not landing due to DCS , orbiting in zone to capture)</li>
+<li>Train &amp; Trucks supply convoy (train will continuously move between zone , due to DCS it can'y be late activated)</li>
+</ul>
+<hr>
+<h2 id="supply--logistics">Supply &amp; Logistics</h2>
+<h3 id="supply-mechanics">Supply Mechanics</h3>
+<p><strong>What Supply Does:</strong></p>
+<ul>
+<li>Spawns defensive units (infantry, armor, AAA)</li>
+<li>Repairs damaged units</li>
+<li>Upgrades zone defenses</li>
+<li>Required to capture neutral zones</li>
+</ul>
+<p><strong>Supply Costs:</strong></p>
+<ul>
+<li><strong>Resupply Zone</strong>: 200 credits</li>
+<li><strong>Fully Upgrade Zone</strong>: 1,000 credits</li>
+<li><strong>Emergency Capture</strong>: 500 credits</li>
+</ul>
+<h3 id="supply-routes-arrows-on-map">Supply Routes (Arrows on Map)</h3>
+<p><strong>Blue Arrow (Road Supply):</strong></p>
+<ul>
+<li>Convoy trains &amp; truck routes between zones</li>
+<li>Vulnerable to air attack</li>
+<li>Slower but more flexible</li>
+<li>Air supply by C-47</li>
+</ul>
+<p><strong>Train Icon (Railway Supply):</strong></p>
+<ul>
+<li>Fast, efficient supply lines</li>
+<li>Follows railway infrastructure</li>
+<li><strong>Destroyed if railway station is destroyed</strong></li>
+</ul>
+<h3 id="supply-convoys">Supply Convoys</h3>
+<p><strong>Automatic Behavior:</strong></p>
+<ul>
+<li>AI commander automatically dispatches supply missions</li>
+<li>Convoys spawn from friendly zones</li>
+<li>Travel to zones needing supplies or under threat</li>
+<li>Priority given to:
+<ul>
+<li>Neutral zones near capture</li>
+<li>Damaged friendly zones</li>
+<li>Frontline positions</li>
+</ul>
+</li>
+</ul>
+<p><strong>Player Missions:</strong>
+Generated every 2-5 minutes, tracked in mission list:</p>
+<ul>
+<li>&quot;<strong>Resupply [Zone]</strong>&quot; - Escort supply convoy</li>
+<li>Completion awards credits and helps war effort</li>
+</ul>
+<hr>
+<h2 id="railway-system">Railway System</h2>
+<h3 id="railway-infrastructure">Railway Infrastructure</h3>
+<p><strong>Railway Stations (Critical Targets!):</strong>
+Each major zone has hidden railway depots that supply military units:</p>
+<p><strong>Blue Railways:</strong></p>
+<ul>
+<li>London → Farnborough, Manston, Ford, Chailey, Hawkinge</li>
+</ul>
+<p><strong>Red Railways:</strong></p>
+<ul>
+<li>Paris → Orly, Saint-Andre, Fecamp, Saint-Aubain</li>
+<li>Cherbourg → Valognes → Le Molay → Caen</li>
+<li>Le Havre → Fecamp, Rouen</li>
+<li>Amiens → Abbeville → Le Touquet</li>
+<li>Dunkirk-Port → Calais</li>
+</ul>
+<h3 id="railway-destruction-effects">Railway Destruction Effects</h3>
+<p><strong>When you destroy a railway station:</strong></p>
+<ol>
+<li><strong>All dependent train groups immediately destroyed</strong></li>
+<li><strong>Supply route permanently broken</strong> (shown on map)</li>
+<li><strong>Bonus credits awarded</strong> (2,000 per dependent unit destroyed)</li>
+<li><strong>Strategic impact message</strong> displayed</li>
+</ol>
+<p><strong>Example:</strong> Destroying the railway at Abbeville stops all trains running:</p>
+<ul>
+<li>Amiens → Abbeville</li>
+<li>Abbeville → Le Touquet</li>
+</ul>
+<h3 id="finding-railway-targets">Finding Railway Targets</h3>
+<p>Railway stations are <strong>hidden subzones</strong> near major airbases and cities. Look for:</p>
+<ul>
+<li>Railway track clusters</li>
+<li>Train depot buildings</li>
+<li>Fuel tanks near tracks</li>
+<li>Static train cars</li>
+<li>photos of targets are available in kneeboards</li>
+</ul>
+<p><strong>Tip:</strong> Use low-altitude reconnaissance to locate exact positions before bombing runs.</p>
+<h3 id="train-groups">Train Groups</h3>
+<p><strong>Active Train Routes:</strong></p>
+<ul>
+<li>Carry supplies between zones</li>
+<li><strong>1,000 credit bonus</strong> for destroying enemy trains</li>
+</ul>
+<hr>
+<h2 id="dynamic-events">Dynamic Events</h2>
+<h3 id="event-frequency">Event Frequency</h3>
+<p>Events occur based on EventCommander schedule:</p>
+<ul>
+<li><strong>Check Frequency</strong>: Every 30-60 minutes</li>
+<li><strong>Skip Chance</strong>: 10% chance to skip</li>
+<li><strong>Cooldowns</strong>: Prevent rapid successive events</li>
+</ul>
+<h3 id="event-types">Event Types</h3>
+<h4 id="1-bomber-red-enemy-strike">1. <strong>Bomber Red (Enemy Strike)</strong></h4>
+<p><strong>Frequency:</strong> Every ~35 minutes minimum</p>
+<p><strong>Description:</strong></p>
+<ul>
+<li>6x enemy bombers spawn from Red airbase</li>
+<li>Target: Random Blue zone</li>
+<li>May have fighter escort</li>
+</ul>
+<p><strong>Player Mission:</strong></p>
+<ul>
+<li><strong>&quot;Intercept Bombers&quot;</strong></li>
+<li>Destroy bombers before they reach target</li>
+<li>Rewards: Credits for kills + zone defense</li>
+</ul>
+<p><strong>Spawn/Target Examples:</strong></p>
+<ul>
+<li>From: Orly, Abbeville, Merville, Carpiquet</li>
+<li>To: BigginHill, Ford, Dover, Manston</li>
+</ul>
+<hr>
+<h4 id="2-bomber-blue-allied-strike">2. <strong>Bomber Blue (Allied Strike)</strong></h4>
+<p><strong>Frequency:</strong> Every ~30 minutes minimum</p>
+<p><strong>Description:</strong></p>
+<ul>
+<li>4x Allied bombers B-17G spawn from Blue airbase</li>
+<li>Target: Random Red zone</li>
+<li>2x Fighter escort</li>
+<li><strong>Enemy interceptors will scramble!</strong></li>
+</ul>
+<p><strong>Player Mission:</strong></p>
+<ul>
+<li><strong>&quot;Bomber Strike&quot;</strong></li>
+<li>Escort bombers to target</li>
+<li>Defend against Red interceptors</li>
+<li>Cover bombing run</li>
+</ul>
+<p><strong>Warning Messages:</strong></p>
+<ul>
+<li>&quot;Allied bombers launched from [Zone]&quot;</li>
+<li>&quot;Target: [Zone]&quot;</li>
+<li>&quot;WARNING: Expect enemy interceptors!&quot;</li>
+</ul>
+<hr>
+<h4 id="3-navy-artillery-strike">3. <strong>Navy Artillery Strike</strong></h4>
+<p><strong>Frequency:</strong> Every ~40 minutes minimum</p>
+<p><strong>Description:</strong></p>
+<ul>
+<li>Naval strike group approaches French coast</li>
+<li>Targets: Saint-Pierre areas</li>
+<li>Vulnerable to air attack</li>
+</ul>
+<p><strong>Player Mission:</strong></p>
+<ul>
+<li><strong>&quot;Naval Artillery CAP&quot;</strong></li>
+<li>Provide air cover for naval group</li>
+<li>Intercept enemy strikers</li>
+<li>Ensure naval bombardment succeeds</li>
+</ul>
+<hr>
+<h4 id="4-v1-rocket-attack">4. <strong>V1 Rocket Attack</strong></h4>
+<p><strong>Frequency:</strong> Every ~45 minutes minimum</p>
+<p><strong>Description:</strong></p>
+<ul>
+<li>V1 rockets launch toward Blue zones</li>
+<li>Multiple rockets per barrage</li>
+<li>Launch from active V1 sites</li>
+</ul>
+<p><strong>Player Mission:</strong></p>
+<ul>
+<li><strong>&quot;V1 Rocket Attack&quot;</strong></li>
+<li>Locate and destroy launch site</li>
+<li>Intercept rockets in flight (difficult)</li>
+<li>Evacuate target area</li>
+</ul>
+<p><strong>Active V1 Sites:</strong></p>
+<ul>
+<li>Brecourt</li>
+<li>Herbouville</li>
+<li>Val Ygot</li>
+<li>Crecy Forest</li>
+<li>Flixecourt</li>
+<li>Wallon-Cappel</li>
+<li>Neuville</li>
+</ul>
+<hr>
+<h2 id="v1-rocket-sites">V1 Rocket Sites</h2>
+<h3 id="destroying-v1-sites">Destroying V1 Sites</h3>
+<p>Each V1 site has TWO critical targets:</p>
+<h4 id="1-v1-launcher-units">1. <strong>V1 Launcher Units</strong></h4>
+<ul>
+<li>Mobile launcher vehicles (v1_launcher, V1x10)</li>
+<li>Usually 1 launchers per site</li>
+<li>Destroy to stop rocket launches</li>
+</ul>
+<h4 id="2-fuel-storage-tanks">2. <strong>Fuel Storage Tanks</strong></h4>
+<ul>
+<li>Static fuel tank (&quot;toplivo-bak&quot; model)</li>
+<li>One per site</li>
+<li>Destruction of fule tank will simulate destruction of launcher and Fire control with multiple explosions</li>
+<li><strong>Required for site destruction bonus and disable the zone</strong></li>
+</ul>
+<h3 id="complete-destruction-process">Complete Destruction Process</h3>
+<p><strong>Step 1:</strong> Locate V1 site zone (marked on map)</p>
+<p><strong>Step 2:</strong> Destroy all launcher units</p>
+<ul>
+<li>Bomb or strafe launcher vehicles</li>
+<li>Site will be still active unless fuel tank is destroyed at mission restart (but no more launch possible if launcher was destroyed)</li>
+</ul>
+<p><strong>Step 3:</strong> Destroy fuel tank</p>
+<ul>
+<li>Usually near launchers</li>
+<li>Large static fuel tank model</li>
+<li><strong>Napalm effect triggers on destruction!</strong></li>
+</ul>
+<p><strong>Step 4:</strong> Site permanently disabled</p>
+<ul>
+<li>Zone marked as destroyed</li>
+<li><strong>500 credit bonus</strong> awarded</li>
+<li>Message: &quot;V1 Launch Site at [Name] Destroyed&quot;</li>
+</ul>
+<h3 id="napalm-effect">Napalm Effect</h3>
+<p>When fuel tanks are destroyed:</p>
+<ul>
+<li>Large explosion triggered</li>
+<li>Fire effects spread</li>
+<li>Nearby units damaged</li>
+<li>Big smoke column (visual marker)</li>
+</ul>
+<h3 id="v1-site-locations">V1 Site Locations</h3>
+<ol>
+<li><strong>V1 Launch Site - Brecourt</strong></li>
+<li><strong>V1 Launch Site - Herbouville</strong></li>
+<li><strong>V1 Launch Site - Val Ygot</strong></li>
+<li><strong>V1 Launch Site - Crecy Forest</strong></li>
+<li><strong>V1 Launch Site - Flixecourt</strong></li>
+<li><strong>V1 Launch Site - Wallon-Cappel</strong></li>
+<li><strong>V1 Launch Site - Neuville</strong></li>
+</ol>
+<p>Each site has hidden fuel tank: &quot;Fueltank-[SiteName]&quot;</p>
+<hr>
+<h2 id="strategic-objectives">Strategic Objectives</h2>
+<h3 id="high-value-targets">High-Value Targets</h3>
+<h4 id="radar-sites-1000-credits-each">Radar Sites (1,000 credits each)</h4>
+<ul>
+<li><strong>Pointe des Groins</strong> - Cherbourg area</li>
+<li><strong>Pointe du Hoc</strong> - Normandy coast</li>
+<li><strong>Cap Gris-Nez</strong> - Calais area</li>
+</ul>
+<p><strong>Effect:</strong> Disables enemy early warning, site cannot respawn</p>
+<h4 id="railway-stations-2000-credits">Railway Stations (2,000+ credits)</h4>
+<p>Strategic infrastructure targets:</p>
+<ul>
+<li>Destroy to cut enemy supply chains</li>
+<li>Bonus for each dependent unit destroyed</li>
+<li>Permanently breaks supply routes</li>
+</ul>
+<h4 id="v1-sites-500-credits-each">V1 Sites (500 credits each)</h4>
+<ul>
+<li>Stop rocket attacks on Allied territory</li>
+<li>Must destroy both launchers AND fuel tanks</li>
+<li>7 sites total</li>
+</ul>
+<h3 id="income-generating-zones">Income-Generating Zones</h3>
+<p>Capturing these provides <strong>continuous credit income</strong>:</p>
+<p><strong>High Value (Income = 1):</strong> 360 credits/hour</p>
+<ul>
+<li>BigginHill, Farnborough, Odiham</li>
+<li>Dover, Ford, Needs Oar Point</li>
+<li>Cherbourg, Calais, Le Havre</li>
+<li>London, Paris, Orly</li>
+<li>Valognes, Caen, Amiens, Rouen, Merville</li>
+</ul>
+<p><strong>Strategic Locations:</strong></p>
+<ul>
+<li>Major airbases</li>
+<li>Port cities</li>
+<li>Capital regions</li>
+</ul>
+<hr>
+<h2 id="credits--economy">Credits &amp; Economy</h2>
+<h3 id="earning-credits">Earning Credits</h3>
+<p><strong>Combat Rewards:</strong></p>
+<ul>
+<li>Infantry kill: 10 credits</li>
+<li>Ground vehicle: 10 credits</li>
+<li>SAM system: 30 credits</li>
+<li>Structure: 30 credits</li>
+<li>Airplane: 30 credits</li>
+<li>Helicopter: 30 credits</li>
+<li>Ship: 250 credits</li>
+<li>Cargo crate delivery: 200 credits</li>
+<li>Rescued pilot: 100 credits</li>
+</ul>
+<p><strong>Strategic Bonuses:</strong></p>
+<ul>
+<li>Radar site destroyed: 1,000 credits</li>
+<li>V1 site destroyed: 500 credits</li>
+<li>Railway station destroyed: 2,000+ credits (plus dependent units)</li>
+<li>Enemy train destroyed: 1,000 credits</li>
+</ul>
+<p><strong>Mission Completion:</strong></p>
+<ul>
+<li>Dynamic CAP mission: Variable (100 credits per kill target)</li>
+<li>Mission objectives: Tracked and rewarded</li>
+</ul>
+<p><strong>Zone Income:</strong></p>
+<ul>
+<li>Passive income from controlled zones</li>
+<li>360 credits/hour per income zone</li>
+</ul>
+<h3 id="spending-credits-f10-menu">Spending Credits (F10 Menu)</h3>
+<p><strong>Supply Options:</strong></p>
+<ul>
+<li>Resupply Zone: 200 credits</li>
+<li>Fully Upgrade Zone: 1,000 credits</li>
+<li>Emergency Capture (Neutral): 500 credits</li>
+</ul>
+<p><strong>Air Support (F10 → Shop):</strong></p>
+<ul>
+<li>Dynamic CAP: 250 credits</li>
+<li>Dynamic CAS: 250 credits</li>
+</ul>
+<p><strong>Reconnaissance:</strong></p>
+<ul>
+<li>Smoke Markers: 20 credits</li>
+<li>Shows enemy positions with red smoke</li>
+</ul>
+<h3 id="credit-penalties">Credit Penalties</h3>
+<p><strong>-100 credits</strong> when you die/lose aircraft</p>
+<ul>
+<li>Encourages careful flying</li>
+<li>RTB and rearm rather than suicide runs</li>
+</ul>
+<hr>
+<h2 id="mission-tracking">Mission Tracking</h2>
+<h3 id="mission-types">Mission Types</h3>
+<p>The mission system automatically generates objectives:</p>
+<h4 id="1-resupply-missions">1. <strong>Resupply Missions</strong></h4>
+<ul>
+<li>&quot;Resupply [Zone]&quot;</li>
+<li>Escort supply convoys</li>
+<li>Protect friendly zones needing supplies</li>
+<li>Generated every 2-5 minutes</li>
+</ul>
+<h4 id="2-attack-missions">2. <strong>Attack Missions</strong></h4>
+<ul>
+<li>&quot;Attack [Zone]&quot;</li>
+<li>Destroy enemy forces</li>
+<li>Target frontline enemy zones</li>
+<li>Generated every 2-5 minutes</li>
+</ul>
+<h4 id="3-capture-missions">3. <strong>Capture Missions</strong></h4>
+<ul>
+<li>&quot;Capture [Zone]&quot;</li>
+<li>Secure neutral territory</li>
+<li>Help supply convoys reach zone</li>
+<li>Generated every 2-5 minutes</li>
+</ul>
+<h4 id="4-cap-missions">4. <strong>CAP Missions</strong></h4>
+<ul>
+<li>Dynamic player competition</li>
+<li>Kill X enemy aircraft</li>
+<li>Scoreboard tracks kills</li>
+<li>Winner gets bonus credits</li>
+</ul>
+<h4 id="5-event-missions">5. <strong>Event Missions</strong></h4>
+<ul>
+<li>Bomber interception</li>
+<li>Bomber escort</li>
+<li>Naval artillery escort</li>
+<li>V1 site destruction</li>
+<li>Generated by event system</li>
+</ul>
+<h3 id="mission-audio-cues">Mission Audio Cues</h3>
+<p><strong>Mission Start:</strong></p>
+<ul>
+<li>&quot;Ding&quot; sound for new mission</li>
+<li>Check F10 mission list</li>
+</ul>
+<p><strong>Mission End:</strong></p>
+<ul>
+<li>&quot;Cancel&quot; sound</li>
+<li>Check results</li>
+</ul>
+<p><strong>Special Missions:</strong></p>
+<ul>
+<li>&quot;CAS&quot; sound for attack missions</li>
+<li>&quot;Admin&quot; sound for special events</li>
+</ul>
+<hr>
+<h2 id="radio-menus--features">Radio Menus &amp; Features</h2>
+<h3 id="f10-menu-structure">F10 Menu Structure</h3>
+<h4 id="atis-and-closest-airbase"><strong>ATIS and Closest Airbase</strong></h4>
+<ul>
+<li>Get Closest Friendly Airbase
+<ul>
+<li>Distance and bearing</li>
+<li>Current weather</li>
+<li>Active runway</li>
+</ul>
+</li>
+<li>Get ATIS for Mother (Carrier)</li>
+<li>Get ATIS for [Airbase]
+<ul>
+<li>Wind, altimeter, runway info</li>
+</ul>
+</li>
+</ul>
+<h4 id="shop-menu-credits-required"><strong>Shop Menu</strong> (Credits required)</h4>
+<ul>
+<li>Resupply friendly Zone: 200 cr</li>
+<li>Fully Upgrade Friendly Zone: 1,000 cr</li>
+<li>Emergency capture neutral zone: 500 cr</li>
+<li>Dynamic CAP: 250 cr</li>
+<li>Dynamic CAS: 250 cr</li>
+<li>Smoke markers: 20 cr</li>
+</ul>
+<h3 id="atis-information">ATIS Information</h3>
+<p><strong>Available at Blue Airbases:</strong></p>
+<ul>
+<li>BigginHill, Odiham, Farnborough</li>
+<li>Manston, Hawkinge, Lympne</li>
+<li>Chailey, Ford, Tangmere, Funtington</li>
+<li>Needs Oar Point, Friston</li>
+<li>And all captured French bases</li>
+</ul>
+<p><strong>ATIS Provides:</strong></p>
+<ul>
+<li>Current wind (direction/speed)</li>
+<li>Altimeter setting</li>
+<li>Active runway(s)</li>
+<li>Temperature</li>
+</ul>
+<p><strong>Carrier ATIS:</strong></p>
+<ul>
+<li>Wind on deck</li>
+<li>Altimeter</li>
+<li>BRC (Base Recovery Course)</li>
+<li>TACAN information</li>
+</ul>
+<hr>
+<h2 id="ai-support">AI Support</h2>
+<h3 id="dynamic-cap-250-credits">Dynamic CAP (250 credits)</h3>
+<p><strong>How it works:</strong></p>
+<ol>
+<li>Purchase from F10 menu</li>
+<li>Select spawn zone from submenu</li>
+<li>AI fighters spawn and establish CAP</li>
+<li><strong>Automatic interception</strong> of enemy aircraft</li>
+<li>RTB when mission complete</li>
+</ol>
+<p><strong>Availability:</strong></p>
+<ul>
+<li>Requires 1+ enemy aircraft in area</li>
+<li>Cooldown: 30 minutes after previous CAP ends</li>
+<li>Player competition: Kill targets for bonus</li>
+</ul>
+<h3 id="dynamic-cas-250-credits">Dynamic CAS (250 credits)</h3>
+<p><strong>How it works:</strong></p>
+<ol>
+<li>Purchase from F10 menu</li>
+<li>Select target enemy zone</li>
+<li>AI finds closest Blue zone (20+ NM away)</li>
+<li>Mosquitos spawn and attack target</li>
+<li>Provides ground support</li>
+</ol>
+<p><strong>Best Used For:</strong></p>
+<ul>
+<li>Softening enemy defenses</li>
+<li>Supporting ground offensives</li>
+<li>Clearing heavily defended zones</li>
+</ul>
+<h2 id="tips--strategies">Tips &amp; Strategies</h2>
+<h3 id="for-new-players">For New Players</h3>
+<ol>
+<li>
+<p><strong>Start Simple</strong></p>
+<ul>
+<li>Spawn at BigginHill or Farnborough</li>
+<li>Check F10 missions</li>
+<li>Escort supply convoys first</li>
+<li>Learn the map layout</li>
+</ul>
+</li>
+<li>
+<p><strong>Use ATIS</strong></p>
+<ul>
+<li>Always get weather before takeoff</li>
+<li>Check closest friendly airbase</li>
+<li>Know your emergency alternates</li>
+</ul>
+</li>
+<li>
+<p><strong>Watch Your Credits</strong></p>
+<ul>
+<li>Don't waste on unnecessary purchases</li>
+<li>Save for strategic upgrades</li>
+<li>Death costs 100 credits!</li>
+</ul>
+</li>
+<li>
+<p><strong>Mission Priority</strong></p>
+<ul>
+<li>Resupply missions help the most</li>
+<li>Attack missions when confident</li>
+<li>CAP missions for air combat practice</li>
+</ul>
+</li>
+</ol>
+<h3 id="advanced-tactics">Advanced Tactics</h3>
+<ol>
+<li>
+<p><strong>Railway Interdiction</strong></p>
+<ul>
+<li>Study railway supply map</li>
+<li>Target choke points</li>
+<li>Destroy stations for maximum impact</li>
+<li>Follow up on broken supply lines</li>
+</ul>
+</li>
+<li>
+<p><strong>V1 Site Elimination</strong></p>
+<ul>
+<li>Recon first - locate fuel tanks</li>
+<li>Use heavy ordnance</li>
+<li>Confirm both launchers AND tank destroyed</li>
+<li>Watch for napalm effect</li>
+</ul>
+</li>
+<li>
+<p><strong>Coordinated Strikes</strong></p>
+<ul>
+<li>Time attacks with bomber events</li>
+<li>Use Dynamic CAS + player CAS</li>
+<li>Clear air defenses before bombers arrive</li>
+<li>Escort is force multiplier</li>
+</ul>
+</li>
+<li>
+<p><strong>Income Strategy</strong></p>
+<ul>
+<li>Prioritize capturing income zones</li>
+<li>Defend income zones from attack</li>
+<li>Upgrade defenses at income locations</li>
+<li>Passive income funds the war</li>
+</ul>
+</li>
+</ol>
+<h3 id="carrier-operations">Carrier Operations</h3>
+<hr>
+<h2 id="persistence-system">Persistence System</h2>
+<h3 id="mission-progress-saves">Mission Progress Saves</h3>
+<p><strong>Automatically Saved:</strong></p>
+<ul>
+<li>Zone control status</li>
+<li>Credit balances</li>
+<li>Shop item availability</li>
+<li>Railway destruction status</li>
+<li>V1 site destruction status</li>
+<li>Train group destruction status</li>
+<li>Unit deployment levels</li>
+</ul>
+<p><strong>On Mission Restart:</strong></p>
+<ul>
+<li>Previous state restored</li>
+<li>Destroyed railways remain destroyed</li>
+<li>Destroyed V1 sites remain destroyed</li>
+<li>Destroyed trains remain destroyed</li>
+<li>Zone ownership preserved</li>
+<li>Credit balance preserved</li>
+</ul>
+<h3 id="save-file-location">Save File Location</h3>
+<p><code>DCS/Missions/Saves/foothold_normandy_1.0.lua</code></p>
+<p><strong>Manual Reset:</strong>
+Can be triggered via F10 menu when mission complete</p>
+<hr>
+<h2 id="victory-conditions">Victory Conditions</h2>
+<h3 id="mission-complete">Mission Complete</h3>
+<p><strong>Win Condition:</strong>
+All Red zones captured or destroyed</p>
+<p><strong>Triggers when:</strong></p>
+<ul>
+<li>No enemy zones remain active</li>
+<li>All V1 sites destroyed</li>
+<li>All strategic objectives captured</li>
+</ul>
+<p><strong>Completion Message:</strong>
+&quot;Enemy has been defeated. Mission Complete.&quot;</p>
+<p><strong>Options After Victory:</strong></p>
+<ul>
+<li>Continue playing</li>
+<li>Restart mission (via F10 menu)</li>
+<li>Save progress cleared on restart</li>
+</ul>
+<hr>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="common-issues">Common Issues</h3>
+<p><strong>&quot;No ATIS available&quot;</strong></p>
+<ul>
+<li>Airbase not Blue controlled</li>
+<li>Check zone status on map</li>
+<li>Capture airbase first</li>
+</ul>
+<p><strong>&quot;Supply convoy not arriving&quot;</strong></p>
+<ul>
+<li>Railway destroyed - use road supply</li>
+<li>Zone surrounded - clear route</li>
+<li>Use Emergency Capture (500 cr)</li>
+</ul>
+<p><strong>&quot;CAP mission not generating&quot;</strong></p>
+<ul>
+<li>No enemy aircraft in area</li>
+<li>Previous CAP on cooldown</li>
+<li>Check enemy air activity</li>
+</ul>
+<p><strong>&quot;Credits not awarded&quot;</strong></p>
+<ul>
+<li>Target may be neutral</li>
+<li>Check coalition of target</li>
+<li>Some units worth 0 credits</li>
+</ul>
+<h3 id="performance">Performance</h3>
+<p><strong>If experiencing lag:</strong></p>
+<ul>
+<li>Dynamic events spawn many units</li>
+<li>Multiple convoys running</li>
+<li>Use &quot;Destroy Group&quot; commands for finished AI missions</li>
+<li>Some automatic cleanup occurs</li>
+</ul>
+<hr>
+<h2 id="mission-details">Mission Details</h2>
+<p><strong>Mission Name:</strong> WWII Normandy Foothold v2.2
+<strong>Theater:</strong> Normandy 1944
+<strong>Era:</strong> World War II
+<strong>Type:</strong> Dynamic Territory Control
+<strong>Difficulty:</strong> Variable (depends on player coordination)
+<strong>Recommended Players:</strong> 2-32
+<strong>Persistence:</strong> Enabled</p>
+<hr>
+<h2 id="credits">Credits</h2>
+<p><strong>Original Mission Developer:</strong> Leka - Creator of the Foothold Framework
+<strong>Custom Implementation:</strong> WWII Normandy Adaptation
+<strong>V1 Launcher Mod:</strong> SUNTSAG - Creator of the WW2 V1 German Rocket Launcher mod
+<strong>Scripts:</strong></p>
+<ul>
+<li>Moose Framework</li>
+<li>BattleCommander System</li>
+<li>ZoneCommander</li>
+<li>EventCommander</li>
+<li>MissionCommander</li>
+<li>Custom welcome/ATIS system</li>
+</ul>
+<hr>
+<h2 id="quick-reference">Quick Reference</h2>
+<h3 id="important-zones">Important Zones</h3>
+<ul>
+<li><strong>Allied HQ:</strong> London, BigginHill, Farnborough</li>
+<li><strong>Axis HQ:</strong> Paris, Orly</li>
+<li><strong>Strategic Ports:</strong> Cherbourg, Calais, Le Havre, Dover</li>
+</ul>
+<h3 id="quick-credits">Quick Credits</h3>
+<ul>
+<li>Infantry/Vehicle: 10 cr</li>
+<li>SAM/Structure/Aircraft: 30 cr</li>
+<li>Ship: 250 cr</li>
+<li>Radar Site: 1,000 cr</li>
+<li>V1 Site: 500 cr</li>
+<li>Railway: 2,000+ cr</li>
+<li>Train: 1,000 cr</li>
+</ul>
+<h3 id="event-frequency">Event Frequency</h3>
+<ul>
+<li>Check: Every 30-60 min</li>
+<li>Bomber Red: ~30 min cooldown</li>
+<li>Bomber Blue: ~35 min cooldown</li>
+<li>Navy Strike: ~40 min cooldown</li>
+<li>V1 Attack: ~45 min cooldown</li>
+</ul>
+<hr>
+<p><strong>Good luck, and may your bombs fly true!</strong> 🎯</p>
+
+</body>
+</html>
