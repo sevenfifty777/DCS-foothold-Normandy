@@ -146,4 +146,4 @@ DCS-foothold-Normandy/
 
 ---
 
-**Ready to liberate Normandy? Good luck, and may your bombs fly true!** 🎯✈️
+**Ready to liberate Normandy? A la chasse!!!** 🎯✈️
