@@ -3593,7 +3593,7 @@ function BattleCommander:getTrainGroupForConnection(from, to)
     return nil
 end
 
-DRAW_SUPPLY_ARROWS_DEBUG_LOGGING = true -- Set to true to enable debug logging
+DRAW_SUPPLY_ARROWS_DEBUG_LOGGING = false -- Set to true to enable debug logging
 
 -- Helper functions for debug logging
 local function supplyArrowLog(message)
@@ -8348,8 +8348,8 @@ if not g then return end
 timer.scheduleFunction(function(group, time)
 local spawnedGroup = GROUP:FindByName(group:getName())
         capGroup = FLIGHTGROUP:New(spawnedGroup)
-		capGroup:GetGroup():CommandSetUnlimitedFuel(true):SetOptionRadarUsingForContinousSearch(true)
-		capGroup:SetOutOfAAMRTB(true):SetSpeed(600)
+		capGroup:GetGroup():CommandSetUnlimitedFuel(false)
+		capGroup:SetOutOfAAMRTB(true):SetSpeed(250)
 		local homebase, distance = SpawnCords:GetClosestAirbase(0, 2)
 		if homebase then
 			capGroup:SetHomebase(homebase)
@@ -8494,8 +8494,8 @@ function spawnCasAt(zoneName, targetZoneName)
     local casSpawn = SPAWN:NewFromTemplate(tpl, casSpawnName, nil, true)
    casSpawn:InitHeading(heading):InitSkill("Excellent"):OnSpawnGroup(function(spawnedGroup)
 	casGroup = FLIGHTGROUP:New(spawnedGroup)
-	casGroup:GetGroup():CommandSetUnlimitedFuel(true)
-	casGroup:SetOutOfAGMRTB(true):SetSpeed(600)
+	casGroup:GetGroup():CommandSetUnlimitedFuel(false)
+	casGroup:SetOutOfAGMRTB(true):SetSpeed(250)
 	local homebase, distance = SpawnCords:GetClosestAirbase(0, 2)
 	if homebase then
 		casGroup:SetHomebase(homebase)
@@ -8689,8 +8689,8 @@ function spawnSeadAt(zoneName, targetZoneName)
 	timer.scheduleFunction(function(group, time)
 		local SpawnGroup = GROUP:FindByName(group:getName())
 		seadGroup = FLIGHTGROUP:New(SpawnGroup)
-		seadGroup:GetGroup():CommandSetUnlimitedFuel(true)
-		seadGroup:SetOutOfAGMRTB(true):SetSpeed(600)
+		seadGroup:GetGroup():CommandSetUnlimitedFuel(false)
+		seadGroup:SetOutOfAGMRTB(true):SetSpeed(250)
 		local homebase, distance = SpawnCords:GetClosestAirbase(0, 2)
 		if homebase then
 			seadGroup:SetHomebase(homebase)
@@ -9166,7 +9166,7 @@ function spawnBomberStrikerAt(spawnZoneName, targetZoneName)
                 end
                 
                 bomberEscortGroup = FLIGHTGROUP:New(escortGroup)
-                bomberEscortGroup:GetGroup():CommandSetUnlimitedFuel(true)
+                bomberEscortGroup:GetGroup():CommandSetUnlimitedFuel(false)
                 bomberEscortGroup:SetSpeed(200)
                 
                 -- Set homebase using same method as bomber
@@ -9237,7 +9237,7 @@ function spawnBomberStrikerAt(spawnZoneName, targetZoneName)
         -- end
         
         bomberGroup = FLIGHTGROUP:New(group)
-        bomberGroup:GetGroup():CommandSetUnlimitedFuel(true)
+        bomberGroup:GetGroup():CommandSetUnlimitedFuel(false)
         bomberGroup:SetSpeed(200)
         
         env.info("[BOMBER_LOG] ✓ FLIGHTGROUP created and configured")
@@ -9471,7 +9471,7 @@ function spawnBlueBomberStrikerAt(spawnZoneName, targetZoneName)
                 end
                 
                 bomberBlueEscortGroup = FLIGHTGROUP:New(escortGroup)
-                bomberBlueEscortGroup:GetGroup():CommandSetUnlimitedFuel(true)
+                bomberBlueEscortGroup:GetGroup():CommandSetUnlimitedFuel(false)
                 bomberBlueEscortGroup:SetSpeed(200)
                 
                 -- Set homebase
@@ -9530,7 +9530,7 @@ function spawnBlueBomberStrikerAt(spawnZoneName, targetZoneName)
         blueBomberLog(string.format("[BLUE_BOMBER_LOG]   Group size: %d units", group:GetSize()))
         
         bomberBlueGroup = FLIGHTGROUP:New(group)
-        bomberBlueGroup:GetGroup():CommandSetUnlimitedFuel(true)
+        bomberBlueGroup:GetGroup():CommandSetUnlimitedFuel(false)
         bomberBlueGroup:SetSpeed(200)
         
         env.info("[BLUE_BOMBER_LOG] ✓ FLIGHTGROUP created and configured")
@@ -9683,7 +9683,7 @@ function spawnRedInterceptorFor(blueBomberGroup, targetZoneName)
         
         redInterceptorGroup = FLIGHTGROUP:New(group)
         redInterceptorGroup:SetHomebase(homebase)
-        redInterceptorGroup:GetGroup():CommandSetUnlimitedFuel(true)
+        redInterceptorGroup:GetGroup():CommandSetUnlimitedFuel(false)
         
         -- Create INTERCEPT mission
         local InterceptMission = AUFTRAG:NewINTERCEPT(blueBomberGroup:GetGroup())
@@ -9772,7 +9772,7 @@ function spawnV1ArtyAt(v1ZoneName, targetZoneNames)
     
     -- Validate all target zones exist
     local targetZones = {}
-    v1Log(string.format("[V1_LOG] ===== Starting V1 Artillery from %s =====", v1ZoneName))
+    env.info(string.format("[V1_LOG] ===== Starting V1 Artillery from %s =====", v1ZoneName))
     v1Log(string.format("[V1_LOG] Target zones requested: %s", table.concat(targetZoneNames, ", ")))
     
     for _, zoneName in ipairs(targetZoneNames) do
@@ -9781,7 +9781,7 @@ function spawnV1ArtyAt(v1ZoneName, targetZoneNames)
             table.insert(targetZones, zone)
             v1Log(string.format("[V1_LOG] ✓ Target zone validated: %s", zoneName))
         else
-            v1Log(string.format("[V1_LOG] ✗ Target zone NOT FOUND: %s", zoneName))
+            env.info(string.format("[V1_LOG] ✗ Target zone NOT FOUND: %s", zoneName))
         end
     end
     
@@ -9824,7 +9824,7 @@ function spawnV1ArtyAt(v1ZoneName, targetZoneNames)
             v1Group = grp
             v1Log(string.format("[V1_LOG] ✓ Found V1 launcher group with V1x10 unit: %s", groupName))
         else
-            v1Log(string.format("[V1_LOG] ✗ Skipped group (no V1x10 unit): %s", groupName))
+            env.info(string.format("[V1_LOG] ✗ Skipped group (no V1x10 unit): %s", groupName))
         end
     end)
     

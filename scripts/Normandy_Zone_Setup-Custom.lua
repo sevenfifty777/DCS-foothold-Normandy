@@ -1810,8 +1810,8 @@ buildSubZoneRoadCache()
 bc:buildConnectionMap()
 --evc = EventCommander:new({ decissionFrequency=1*60, decissionVariance=1*60, skipChance = 10})
 evc = EventCommander:new({ 
-    decissionFrequency = 30*60,
-    decissionVariance = 15*60,
+    decissionFrequency = 15*60,
+    decissionVariance = 5*60,
     skipChance = 10
 })
 evc:init()
@@ -2307,6 +2307,8 @@ local function destroyRailwayDependentGroups(stationName)
             local groupCoalition = group:getCoalition()
             
             group:destroy()
+            trainGroupsDestroyed[groupName] = true
+            CustomFlags[groupName] = true
             destroyedCount = destroyedCount + 1
             table.insert(destroyedNames, groupName)
            -- env.info("Railway Station System: Destroyed group " .. groupName .. " due to " .. stationName .. " destruction")
@@ -2371,7 +2373,7 @@ local function restoreRailwayDestructionState()
     
     for stationName, isDestroyed in pairs(CustomFlags) do
         if isDestroyed == true and stationName:lower():find("railway") then
-            --env.info("Railway Station System: Restoring destruction state for " .. stationName)
+            env.info("Railway Station System: Restoring destruction state for " .. stationName)
             
             -- Find and destroy the scenery objects using explosions
             local sceneries = sceneryList[stationName]
@@ -2380,7 +2382,7 @@ local function restoreRailwayDestructionState()
                     if scenery then
                         -- Use explosion to damage scenery
                         trigger.action.explosion(scenery:GetPointVec3(), 500)
-                        --env.info("Railway Station System: Used explosion to damage scenery for " .. stationName)
+                        env.info("Railway Station System: Used explosion to damage scenery for " .. stationName)
                     end
                 end
             end
@@ -2407,6 +2409,7 @@ local function restoreTrainGroupDestructionState()
             
             -- Mark this train group as destroyed in our tracking
             trainGroupsDestroyed[groupName] = true
+            
             
             -- Find and destroy the train group if it exists
             local group = Group.getByName(groupName)
