@@ -3593,6 +3593,14 @@ function BattleCommander:getTrainGroupForConnection(from, to)
     return nil
 end
 
+DRAW_SUPPLY_ARROWS_DEBUG_LOGGING = true -- Set to true to enable debug logging
+
+-- Helper functions for debug logging
+local function supplyArrowLog(message)
+    if DRAW_SUPPLY_ARROWS_DEBUG_LOGGING then
+        env.info(message)
+    end
+end
 function BattleCommander:drawSupplyArrows()
 env.info("DEBUG: drawSupplyArrows called")
 -- Clear existing arrows
@@ -3623,29 +3631,29 @@ local skipArrow = false
             
             if not trainGroupName then
                 skipArrow = true
-                env.info(string.format("DEBUG: Skipping arrow for train connection %d (%s -> %s) - no train group name found", i, v.from, v.to))
+                supplyArrowLog(string.format("DEBUG: Skipping arrow for train connection %d (%s -> %s) - no train group name found", i, v.from, v.to))
             else
                 -- Check if train is marked as destroyed in CustomFlags
                 if CustomFlags and CustomFlags[trainGroupName] == true then
                     skipArrow = true
-                    env.info(string.format("DEBUG: Skipping arrow for train connection %d (%s -> %s) - train group %s is marked as destroyed in CustomFlags", i, v.from, v.to, trainGroupName))
+                    supplyArrowLog(string.format("DEBUG: Skipping arrow for train connection %d (%s -> %s) - train group %s is marked as destroyed in CustomFlags", i, v.from, v.to, trainGroupName))
                 else
                     local trainGroup = Group.getByName(trainGroupName)
                     
                     if not trainGroup then
                         skipArrow = true
-                        env.info(string.format("DEBUG: Skipping arrow for train connection %d (%s -> %s) - train group %s doesn't exist", i, v.from, v.to, trainGroupName))
+                        supplyArrowLog(string.format("DEBUG: Skipping arrow for train connection %d (%s -> %s) - train group %s doesn't exist", i, v.from, v.to, trainGroupName))
                     else
                         -- Additional check: verify the train group has units and they're alive
                         local units = trainGroup:getUnits()
                         if not units or #units == 0 then
                             skipArrow = true
-                            env.info(string.format("DEBUG: Skipping arrow for train connection %d (%s -> %s) - train group %s has no units", i, v.from, v.to, trainGroupName))
+                            supplyArrowLog(string.format("DEBUG: Skipping arrow for train connection %d (%s -> %s) - train group %s has no units", i, v.from, v.to, trainGroupName))
                         else
                             local unit = units[1]
                             if not unit or not unit:isExist() or unit:getLife() <= 1 then
                                 skipArrow = true
-                                env.info(string.format("DEBUG: Skipping arrow for train connection %d (%s -> %s) - train group %s unit is dead/destroyed", i, v.from, v.to, trainGroupName))
+                                supplyArrowLog(string.format("DEBUG: Skipping arrow for train connection %d (%s -> %s) - train group %s unit is dead/destroyed", i, v.from, v.to, trainGroupName))
                             else
                                 env.info(string.format("DEBUG: Train group %s exists and is operational for connection %d (%s -> %s)", trainGroupName, i, v.from, v.to))
                             end
@@ -3663,17 +3671,17 @@ _globalArrowCounter = _globalArrowCounter + 1 -- Get a new unique ID
 local arrowId = _globalArrowCounter
 table.insert(_activeArrowIds, arrowId)
 
-env.info(string.format("DEBUG: Processing connection %d: from=%s (side %s), to=%s (side %s), New Arrow ID: %d", i, v.from, tostring(fromZone and fromZone.side), v.to, tostring(toZone and toZone.side), arrowId))
+supplyArrowLog(string.format("DEBUG: Processing connection %d: from=%s (side %s), to=%s (side %s), New Arrow ID: %d", i, v.from, tostring(fromZone and fromZone.side), v.to, tostring(toZone and toZone.side), arrowId))
 
 if fromZone and toZone and from and to then
 if fromZone.side == 2 and toZone.side ~= 1  then
-env.info(string.format("DEBUG: Drawing BLUE arrow for connection %d", i))
+supplyArrowLog(string.format("DEBUG: Drawing BLUE arrow for connection %d", i))
 trigger.action.arrowToAll(-1, arrowId, to.point, from.point, {0, 0, 0, 0.5}, {0, 0, 1, 0.5}, 2)
 elseif fromZone.side == 1 and toZone.side ~= 2 then
-env.info(string.format("DEBUG: Drawing RED arrow for connection %d", i))
+supplyArrowLog(string.format("DEBUG: Drawing RED arrow for connection %d", i))
 trigger.action.arrowToAll(-1, arrowId, to.point, from.point, {0, 0, 0, 0.5}, {1, 0, 0, 0.5}, 2)
 else
-env.info(string.format("DEBUG: Drawing NEUTRAL arrow for connection %d", i))
+supplyArrowLog(string.format("DEBUG: Drawing NEUTRAL arrow for connection %d", i))
 trigger.action.arrowToAll(-1, arrowId, to.point, from.point, {0, 0, 0, 0.5}, {1, 1, 1, 0.5}, 2)
 end
 else

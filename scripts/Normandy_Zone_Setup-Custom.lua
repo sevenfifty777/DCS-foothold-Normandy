@@ -1197,158 +1197,7 @@ local showCredIncrease = function(event, sender)
 	trigger.action.outTextForCoalition(sender.side, '+'..math.floor(sender.income*360)..' Credits/Hour', 5)
 end
 
-------------------------------------------------------------------------------------------------------------------------------------
--- Event triggers using the following format:
--- exampleZone:registerTrigger('eventname', function(event, sender) trigger.action.outText('event triggered',5) end, 'triggerid', 4)
--- bc:fireAtZone(target, 'cruise1', true, 8)
--------------------------------------------------------------------------------------------------------------------------------------
 
---zones.Hawkinge:registerTrigger('captured', showCredIncrease, 'hawkingecaptured')
---[[
-
-zones.northwestfield:registerTrigger('captured', function(event,sender)
-	local kr = bc:getZoneByName('NorthWestField')
-	if kr.side == 2 then 
-		if not IsGroupActive('Red-Strat-Bombing-1') then
-	trigger.action.outTextForCoalition(2, 'The enemy has launched an assault on Guam after the capture of NorthWestField.', 15)
-			RespawnGroup('Red-Strat-Bombing-1')
-		end
-	end
-end, 'northwestfieldcaptured')
-
-zones.antonio:registerTrigger('captured', function(event,sender)
-	local kr = bc:getZoneByName('Antonio')
-	if kr.side == 2 then
-		
-		if not IsGroupActive('Red-Strat-Bombing-2') then
-	trigger.action.outTextForCoalition(2, 'The enemy has launched an assault on the captured Antonio Intl. Airport.', 15)
-			RespawnGroup('Red-Strat-Bombing-2')
-		end
-	end
-end, 'antoniocaptured')
-
-zones.olforote:registerTrigger('captured', function(event,sender)
-	local kr = bc:getZoneByName('OlfOrote')
-	if kr.side == 2 then 
-		
-		if not IsGroupActive('Red-Strat-Bombing-3') then
-	trigger.action.outTextForCoalition(2, 'The enemy has launched an assault on Guam after the capture of Olf Orote.', 15)
-			RespawnGroup('Red-Strat-Bombing-3')
-		end
-	end
-end, 'olforotecaptured')
-
-zones.cocoisland:registerTrigger('captured', function(event,sender)
-	local kr = bc:getZoneByName('CocoIsland')
-	if kr.side == 2 then 
-		trigger.action.outTextForCoalition(2, 'The enemy has launched an assault on Guam after the capture of Coco Island.', 15)
-		if not IsGroupActive('Red-Strat-Bombing-4') then
-			RespawnGroup('Red-Strat-Bombing-4')
-		end
-	end
-end, 'cocoislandcaptured')
-
-
-
-zones.aguijanisland:registerTrigger('destroyed', function(event, sender) 
-	bc:addFunds(2,500)
-		if not IsGroupActive('Red-Strat-Bombing-5') then
-			RespawnGroup('Red-Strat-Bombing-5')
-		end
-	trigger.action.outTextForCoalition(2,'Aguijan Island disabled\n+500 credits',20)
-end, 'disableaguijanisland')
-
-
-zones.rotaintl:registerTrigger('captured', function(event,sender)
-	local kr = bc:getZoneByName('RotaIntl')
-	if kr.side == 2 then
-		local Rotaforces = { 'Rota-iforce-1','Rota-tforce-1','Rota-tforce-2','Rota-aforce-1' }
-		for _,v in ipairs(Rotaforces) do
-			local g = Group.getByName(v)
-			if g then
-				g:destroy()
-			end
-		end
-	end
-end, 'rotaintlcaptured')
-
-zones.tinian:registerTrigger('lost', function(event,sender)
-	local kr = bc:getZoneByName('Tinian')
-	if kr.side == 2 then 
-		
-		if not IsGroupActive('Pagan-rattack-5') then
-	trigger.action.outTextForCoalition(2, 'The enemy has launched an assault on our forces at Tinian Island.', 15)
-			RespawnGroup('Pagan-rattack-5', 120)
-		end
-	end
-end, 'tinianlost')
-
-zones.tinian:registerTrigger('captured', function(event,sender)
-	local kr = bc:getZoneByName('Tinian')
-	if kr.side == 2 then 
-		
-		if not IsGroupActive('Red-Strat-Bombing-6') then
-	trigger.action.outTextForCoalition(2, 'The enemy has launched an assault on Guam after the capture of Tinian Intl.', 15)
-			RespawnGroup('Red-Strat-Bombing-6')
-		end
-	end
-end, 'tiniancaptured')
-
-zones.northfield:registerTrigger('captured', function(event,sender)
-	local kr = bc:getZoneByName('NorthField')
-	if kr.side == 2 then
-		
-		if not IsGroupActive('Pagan-rattack-1') then
-			trigger.action.outTextForCoalition(2, 'The enemy has launched an assault on our forces at Saipan Island.', 15)
-			RespawnGroup('Pagan-rattack-1')
-		end
-	end
-end, 'nortfieldcaptured')
-
-
-zones.saipan:registerTrigger('lost', function(event,sender)
-	local kr = bc:getZoneByName('Saipan')
-	if kr.side == 2 then 
-		
-		trigger.action.outTextForCoalition(2, 'The enemy has launched an assault on our forces at Saipan Island.', 15)
-		if not IsGroupActive('Pagan-rattack-6') then
-			RespawnGroup('Pagan-rattack-6')
-		end
-	end
-end, 'saipanlost')
-
-zones.saipan:registerTrigger('captured', function(event,sender)
-	local kr = bc:getZoneByName('Saipan')
-	if kr.side == 2 then 
-		trigger.action.outTextForCoalition(2, 'The enemy has launched an assault on our forces at Saipan Island.', 15)
-		if IsGroupActive('Pagan-rattack-3') then
-			RespawnGroup('Pagan-rattack-3')
-		end
-	end
-end, 'saipancaptured')
-
-zones.saipannorth:registerTrigger('lost', function(event,sender)
-	local kr = bc:getZoneByName('Saipannorth')
-	if kr.side == 2 then 
-		trigger.action.outTextForCoalition(2, 'The enemy has launched an assault on our forces at Saipan Island.', 15)
-		if IsGroupActive('Pagan-rattack-2') then
-			RespawnGroup('Pagan-rattack-2')
-		end
-	end
-end, 'saipannorthlost')
-
-zones.saipannorth:registerTrigger('captured', function(event,sender)
-	local kr = bc:getZoneByName('SaipanNorth')
-	if kr.side == 2 then 
-		trigger.action.outTextForCoalition(2, 'The enemy has launched an assault on our forces at Saipan Island.', 15)
-		if IsGroupActive('Pagan-rattack-4') then
-			RespawnGroup('Pagan-rattack-4')
-		end
-	end
-end, 'saipannorthcaptured')
---]]
--------------------------------------------------------------------------------------------------------------------------------
--- End of the Trigger section--------------------------------------------------------------------------------------------------
 -- Start of original script----------------------------------------------------------------------------------------------------
 -------------------------------------------------------------------------------------------------------------------------------
 
@@ -1392,23 +1241,6 @@ for i,v in ipairs(bc:getZones()) do
 	v:registerTrigger('lost', checkMissionComplete, 'missioncompleted')
 end
 
---[[
-timer.scheduleFunction(function()
-	checkMissionComplete(nil, nil)
-	bc:roamGroupsToLocalSubZone({
-		"Red armoured group 1 #",
-		"Red armoured group 2 #",
-		"Red SAM AAA group 2 #",
-		"Red armoured group 3 #",
-		"Red Tanks #",
-		"Red SAM SHORAD SA-15 #",
-		"Red SAM SHORAD SA-19 #",
-		"Red SAM SHORAD SA-8 #"
-	}, 50)
-end, {}, timer.getTime() + 30)
---]]
-
--------------------------------------------------------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------------------------------------------------------
 local upgradeMenu = nil
@@ -1695,7 +1527,7 @@ bc:addShopItem(2, 'sweep', -1)
 bc:addShopItem(2, 'antiship', -1)
 bc:addShopItem(2, 'sead', -1)
 bc:addShopItem(2, 'cas', -1)
-bc:addShopItem(2, 'cruisemsl', 12)
+--bc:addShopItem(2, 'cruisemsl', 12)
 bc:addShopItem(2, 'supplies', -1)
 bc:addShopItem(2, 'supplies2', -1)
 --bc:addShopItem(2, 'jtac', -1)
@@ -2214,7 +2046,7 @@ end
 -------------------------------------------- End of Navy Artillery event ------------------------------------------
 ---
 ---------------------------------------------- V1 Artillery event ---------------------------------------------
-local v1Arty_COOLDOWN = 2700
+local v1Arty_COOLDOWN = 1200
 local lastV1Arty_COOLDOWN = -v1Arty_COOLDOWN
 
 -- Helper function to check if ANY V1 site is active
