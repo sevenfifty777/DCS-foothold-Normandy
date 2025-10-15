@@ -1439,6 +1439,35 @@ function(sender,params)
     return nil
 end)
 -------------------------------------------------------------------------------------------------------------------------------
+local smoketargets = function(tz)
+	if not tz or not tz.built then return end
+	local units = {}
+	for i,v in pairs(tz.built) do
+		local g = Group.getByName(v)
+		if g and g:isExist() then
+			local gUnits = g:getUnits()
+			if gUnits then
+				for i2,v2 in ipairs(gUnits) do
+					table.insert(units,v2)
+				end
+			end
+		end
+	end
+	local tgts = {}
+	for i=1,3,1 do
+		if #units > 0 then
+			local selected = math.random(1,#units)
+			table.insert(tgts,units[selected])
+			table.remove(units,selected)
+		end
+	end
+	for i,v in ipairs(tgts) do
+		if v and v:isExist() then
+			local pos = v:getPosition().p
+			trigger.action.smoke(pos,1)
+		end
+	end
+end
 
 local smokeTargetMenu = nil
 bc:registerShopItem('smoke', 'Smoke markers', 20, function(sender)
