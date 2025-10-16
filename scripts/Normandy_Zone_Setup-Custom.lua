@@ -441,7 +441,7 @@ function fUnitCoord(pzone)
             OBJCAT = Object.getCategory(targetUnit)
 			
             --trigger.action.outText(TGT.. ': X: '.. targetCoord.x .. ' Y: ' .. targetCoord.y .. ' Z: ' .. targetCoord.z, 10)
-            trigger.action.outText(TGT.. ':: '.. TYP , 10)
+            --trigger.action.outText(TGT.. ':: '.. TYP , 10)
             env.info(TGT.. ':: '.. TYP)
             if TYP == "V1x10" or TYP == "v1_launcher" or TYP == "fire_control" then  -- only target units and statics
                 timer.scheduleFunction(napalmOnImpact, targetCoord, timer.getTime() + delay)

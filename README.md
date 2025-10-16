@@ -22,7 +22,8 @@ Detailed guides and information:
 
 ## 🎮 Mission Files
 
-- **Mission File**: [`missions/WWII_Normandy_Foothold_Custom_v1.0.miz`](missions/)
+- **Mission File (Full)**: [`missions/WWII_Normandy_Foothold_Custom_v1.0.miz`](missions/) - Requires all mods
+- **Mission File (No Mods)**: [`missions/WWII_Normandy_Foothold_Custom_v1.0_nomods.miz`](missions/) - **No mods required** (V1 rocket launchers will not function)
 - **Theater**: Normandy 1944 Map (required)
 - **Era**: World War II
 - **Players**: 2-32 recommended
@@ -44,6 +45,7 @@ The V1 German Rocket Launcher mod is essential for the mission's V1 rocket attac
 - **Documentation**: [V1 Launcher Installation Guide](documentation/WW2%20V1%20German%20Rocket%20Launcher.md)
 - **Download**: [Mega.nz Link](https://mega.nz/file/YZcThapa#esMMJJWy590onz6fWJgMs7RvZ9pk5Crzp6ETmiYW4L0)
 - **Creator**: SUNTSAG
+- **Note**: Not required for the nomods mission version, but V1 launch sites will be non-functional without this mod
 
 ### Railway Assets Pack WWII
 Adds historically accurate railway assets for enhanced visual realism.

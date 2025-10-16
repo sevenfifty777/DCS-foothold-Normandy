@@ -1447,7 +1447,7 @@ GlobalSettings = {}
 do
 	GlobalSettings.blockedDespawnTime = 10*60 --used to despawn aircraft that are stuck taxiing for some reason
 	GlobalSettings.landedDespawnTime = 1*60
-	GlobalSettings.initialDelayVariance = 0 -- minutes
+	GlobalSettings.initialDelayVariance = 15 -- minutes
 	
 	GlobalSettings.messages = {
 		grouplost = false,
@@ -9322,7 +9322,7 @@ local BomberMission = AUFTRAG:NewBOMBING(targetSet, 10000, ENUMS.WeaponFlag.Auto
         BomberMission:SetWeaponExpend(AI.Task.WeaponExpend.ALL)
         BomberMission:SetMissionSpeed(200)
         BomberMission:SetMissionAltitude(10000)
-		BomberMission:SetFormation(ENUMS.Formation.FixedWing.BomberElement)
+		BomberMission:SetFormation(ENUMS.Formation.FixedWing.EchelonLeft)
 		BomberMission:SetEngageAsGroup(true)  -- Engage targets individually
 
 
@@ -9483,7 +9483,7 @@ function spawnBlueBomberStrikerAt(spawnZoneName, targetZoneName)
                 
                 -- Create ESCORT mission to protect the bomber
                 if bomberBlueGroup and bomberBlueGroup:IsAlive() then
-                    local offsetVector = {x = -100, y = 0, z = 200}
+                    local offsetVector = {x = -500, y = 0, z = -500}
                     local EscortMission = AUFTRAG:NewESCORT(bomberBlueGroup:GetGroup(), offsetVector, 10, {"Air"})
                     EscortMission:SetMissionAltitude(20000)
                     EscortMission:SetMissionSpeed(200)
@@ -9583,7 +9583,7 @@ function spawnBlueBomberStrikerAt(spawnZoneName, targetZoneName)
         BomberMission:SetWeaponExpend(AI.Task.WeaponExpend.ALL)
         BomberMission:SetMissionSpeed(200)
         BomberMission:SetMissionAltitude(20000)
-        BomberMission:SetFormation(ENUMS.Formation.FixedWing.BomberElement)
+        BomberMission:SetFormation(851968)
         BomberMission:SetEngageAsGroup(true)
         
         env.info("[BLUE_BOMBER_LOG] ✓ BOMBING mission created")

@@ -4,6 +4,16 @@
 
 Welcome to the WWII Normandy Foothold dynamic campaign! This is a persistent territory control mission where the Blue coalition (Allies) fights to liberate France from Red coalition (Axis) control. Your actions directly impact the outcome of the campaign.
 
+### Mission Versions
+
+**Two versions are available:**
+
+- **Full Version** (`WWII_Normandy_Foothold_Custom_v1.0.miz`) - Requires all mods installed for complete functionality
+- **No Mods Version** (`WWII_Normandy_Foothold_Custom_v1.0_nomods.miz`) - **No mods required**, but V1 rocket launchers will be non-functional
+
+**Note:** If playing the nomods version, V1 launch sites will exist on the map but cannot fire rockets due to the missing V1 launcher mod. All other mission features remain fully functional.
+            If you switch between versions you will have to delete or rename the file foothold_normandy_1.0.lua
+
 ---
 
 ## Table of Contents
@@ -261,9 +271,19 @@ Events occur based on EventCommander schedule:
 - Wallon-Cappel
 - Neuville
 
+**⚠️ Note for Nomods Version:** V1 rocket attacks will NOT occur in the nomods mission version due to the missing V1 launcher mod. V1 sites can still be destroyed for bonus credits, but they will not launch rockets.
+
 ---
 
 ## V1 Rocket Sites
+
+### ⚠️ Nomods Version Limitation
+
+**If playing the nomods version (`WWII_Normandy_Foothold_Custom_v1.0_nomods.miz`):**
+- V1 launch sites exist on the map
+- Sites can still be destroyed for bonus credits (500 cr each)
+- **V1 rockets will NOT launch** due to missing V1 launcher mod
+- All other gameplay features remain functional
 
 ### Destroying V1 Sites
 
@@ -273,11 +293,12 @@ Each V1 site has TWO critical targets:
 - Mobile launcher vehicles (v1_launcher, V1x10)
 - Usually 1 launchers per site
 - Destroy to stop rocket launches
+- **Not present in nomods version**
 
 #### 2. **Fuel Storage Tanks**
 - Static fuel tank ("toplivo-bak" model)
 - One per site
-- Destruction of fule tank will simulate destruction of launcher and Fire control with multiple explosions
+- Destruction of fuel tank will simulate destruction of launcher and Fire control with multiple explosions
 - **Required for site destruction bonus and disable the zone**
 
 ### Complete Destruction Process
