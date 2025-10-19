@@ -6744,6 +6744,7 @@ do
 	LogisticCommander.allowedTypes['P-47D-40'] = true
 	LogisticCommander.allowedTypes['P-51D'] = true
 	LogisticCommander.allowedTypes['SpitfireLFMkIXCW'] = true
+	LogisticCommander.allowedTypes['Yak-52'] = true
 	
 	
 	LogisticCommander.maxCarriedPilots = 4

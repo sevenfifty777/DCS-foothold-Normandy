@@ -19,6 +19,7 @@ build/
 dist/
 release/
 archive/
+new templates logic/
 
 # Ignore zip archives
 # *.zip
