@@ -12,6 +12,7 @@ token.txt
 *.key
 *.pem
 *.spec
+.vscode/
 
 # Ignore the entire Local/ folder
 Local/
