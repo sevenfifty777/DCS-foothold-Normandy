@@ -23,7 +23,7 @@ Detailed guides and information:
 
 ## 🎮 Mission Files
 
-- **Mission File (Full)**: [`missions/WWII_Normandy_Foothold_Custom_v1.0.miz`](missions/) - Requires all mods
+- **Mission File (Full)**: [`missions/WWII_Normandy_Foothold_Custom_v1.1.miz`](missions/) - Requires all mods
 - **Mission File (No Mods)**: [`missions/WWII_Normandy_Foothold_Custom_v1.0_nomods.miz`](missions/) - **No mods required** (V1 rocket launchers will not function)
 - **Theater**: Normandy 1944 Map (required)
 - **Era**: World War II
