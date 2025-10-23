@@ -2464,6 +2464,49 @@ local function restoreTrainGroupDestructionState()
     end
 	env.info("Train Group System: previously destroyed train Check complete")
 end
+-- function restoreTrainGroupDestructionState()
+--     env.info("Train Group System: Checking for previously destroyed train groups...")
+    
+--     for groupName, isDestroyed in pairs(CustomFlags) do
+--         if isDestroyed == true and (groupName:find("AXE_Train_") or groupName:find("UK_Train_")) then
+--             -- CRITICAL FIX: Check if the railway infrastructure supports this train
+--             local shouldBeDestroyed = false
+            
+--             -- Check railway station dependencies
+--             if RAILWAY_STATION_GROUPS then
+--                 for stationName, associatedTrains in pairs(RAILWAY_STATION_GROUPS) do
+--                     for _, trainName in ipairs(associatedTrains) do
+--                         if trainName == groupName then
+--                             -- Check if the railway station is destroyed
+--                             if CustomFlags[stationName] == true then
+--                                 shouldBeDestroyed = true
+--                                 env.info("Train Group System: " .. groupName .. " should be destroyed - railway station " .. stationName .. " is destroyed")
+--                                 break
+--                             end
+--                         end
+--                     end
+--                     if shouldBeDestroyed then break end
+--                 end
+--             end
+            
+--             -- Only destroy if railway infrastructure is actually destroyed
+--             if shouldBeDestroyed then
+--                 trainGroupsDestroyed[groupName] = true
+--                 local group = Group.getByName(groupName)
+--                 if group then
+--                     group:destroy()
+--                     env.info("Train Group System: Destroyed train group " .. groupName .. " due to destroyed railway infrastructure")
+--                 end
+--             else
+--                 -- IMPORTANT: Clear the flag if railway is operational
+--                 env.info("Train Group System: Clearing destruction flag for " .. groupName .. " - railway infrastructure is operational")
+--                 CustomFlags[groupName] = nil
+--             end
+--         end
+--     end
+    
+--     env.info("Train Group System: Restoration check complete")
+-- end
 
 local function restoreV1GroupDestructionState()
     env.info("V1 Group System: Checking for previously destroyed V1 launchers...")
@@ -2504,6 +2547,7 @@ restoreTrainGroupDestructionState()
 restoreV1GroupDestructionState()
 
 -- Monitor train groups for destruction
+-- DELAY START: Wait 60 seconds after mission start to allow DCS to fully initialize all units
 SCHEDULER:New(nil, function()
     env.info("Train Group System: Checking for destroyed train groups...")
     
@@ -2516,10 +2560,10 @@ SCHEDULER:New(nil, function()
     local blueGroundGroups = coalition.getGroups(2, Group.Category.GROUND) or {}
     local blueTrainGroups = coalition.getGroups(2, Group.Category.TRAIN) or {}
     
-    --env.info("Ground Group System: Found " .. #redGroundGroups .. " Red ground groups")
-    --env.info("Train Group System: Found " .. #redTrainGroups .. " Red train groups")
-    --env.info("Ground Group System: Found " .. #blueGroundGroups .. " Blue ground groups")
-    --env.info("Train Group System: Found " .. #blueTrainGroups .. " Blue train groups")
+    -- env.info("Ground Group System: Found " .. #redGroundGroups .. " Red ground groups")
+    -- env.info("Train Group System: Found " .. #redTrainGroups .. " Red train groups")
+    -- env.info("Ground Group System: Found " .. #blueGroundGroups .. " Blue ground groups")
+    -- env.info("Train Group System: Found " .. #blueTrainGroups .. " Blue train groups")
     
     -- Combine all group types
     local allGroups = {}
@@ -2611,7 +2655,7 @@ SCHEDULER:New(nil, function()
     
     --env.info("Train Group System: Found " .. trainGroupCount .. " train groups total")
     env.info("Train Group System: Check complete")
-end, {}, 10, 300)
+end, {}, 30, 300)
 
 SCHEDULER:New(nil, function()
     for name, sceneries in pairs(sceneryList) do
@@ -2630,7 +2674,75 @@ SCHEDULER:New(nil, function()
             end
         end
     end
-end, {}, 5, 20)
+end, {}, 60, 300)
+
+-- CRITICAL FIX: Delay scenery monitoring to prevent false railway destruction at mission start
+-- Wait 120 seconds to ensure all scenery objects are properly initialized before checking health
+-- SCHEDULER:New(nil, function()
+--     env.info("Scenery Monitoring System: Starting health check cycle...")
+    
+--     local stationsChecked = 0
+--     local stationsDestroyed = 0
+    
+--     for name, sceneries in pairs(sceneryList) do
+--         stationsChecked = stationsChecked + 1
+--         env.info("Scenery Monitoring System: Checking " .. name .. " with " .. #sceneries .. " scenery objects")
+        
+--         local allBelow50 = true
+--         local objectsFound = 0
+--         local objectsAlive = 0
+--         local lifeValues = {}
+        
+--         for i, scenery in ipairs(sceneries) do
+--             if scenery then
+--                 objectsFound = objectsFound + 1
+--                 local life = scenery:GetRelativeLife()
+--                 table.insert(lifeValues, string.format("obj%d=%.1f", i, life))
+                
+--                 env.info("Scenery Monitoring System: " .. name .. " object " .. i .. " has life: " .. life)
+                
+--                 if life > 50 then
+--                     objectsAlive = objectsAlive + 1
+--                     allBelow50 = false
+--                     env.info("Scenery Monitoring System: " .. name .. " object " .. i .. " is alive (life > 50)")
+--                 else
+--                     env.info("Scenery Monitoring System: " .. name .. " object " .. i .. " is destroyed/damaged (life <= 50)")
+--                 end
+--             else
+--                 env.error("Scenery Monitoring System: " .. name .. " has NULL scenery object at index " .. i)
+--             end
+--         end
+        
+--         env.info("Scenery Monitoring System: " .. name .. " summary - Objects found: " .. objectsFound .. "/" .. #sceneries .. ", Alive: " .. objectsAlive .. ", Life values: [" .. table.concat(lifeValues, ", ") .. "]")
+        
+--         if allBelow50 then
+--             stationsDestroyed = stationsDestroyed + 1
+--             env.info("Scenery Monitoring System: DESTROYING " .. name .. " - all objects below 50% health")
+--             CustomFlags[name] = true
+            
+--             -- Check if this is a railway station and process group destruction
+--             if name:lower():find("railway") then
+--                 env.info("Scenery Monitoring System: Processing railway destruction for " .. name)
+--                 destroyRailwayDependentGroups(name)
+--             end
+--         else
+--             env.info("Scenery Monitoring System: " .. name .. " is operational - at least one object above 50% health")
+            
+--             -- IMPORTANT: Clear any existing destruction flags for healthy stations
+--             if CustomFlags[name] == true then
+--                 env.info("Scenery Monitoring System: Clearing previous destruction flag for " .. name .. " (now healthy)")
+--                 CustomFlags[name] = nil
+--             end
+--         end
+--     end
+    
+--     env.info("Scenery Monitoring System: Health check complete - Checked: " .. stationsChecked .. ", Destroyed: " .. stationsDestroyed)
+    
+--     if stationsDestroyed > 0 then
+--         env.info("Scenery Monitoring System: Refreshing supply arrows due to " .. stationsDestroyed .. " destroyed stations")
+--         bc:drawSupplyArrows()
+--     end
+-- end, {}, 60, 20)
 
 
 --[[ old static missions
