@@ -17,6 +17,7 @@ A dynamic territory control mission for DCS World set in World War II Normandy, 
 
 Detailed guides and information:
 
+- **[Leka's Foothold missions Discord](https://discord.gg/CwPtxjCf)** - Leka's discord where you can found other mission for other map and follow communication about updates
 - **[Player Guide](documentation/Foothold_Normandy_Player_Guide.md)** - Complete mission guide with all features, mechanics, and strategies
 - **[Player Guide (HTML)](documentation/Foothold_Normandy_Player_Guide.html)** - Web-friendly version
 
