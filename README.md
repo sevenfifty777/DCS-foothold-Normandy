@@ -13,6 +13,26 @@ A dynamic territory control mission for DCS World set in World War II Normandy, 
 - AI commander systems for both sides
 - Credit-based economy for purchasing support
 
+## 🚀 Recent Updates
+
+### **Latest Naval Warfare Enhancement (October 2025)**
+- **🌊 New Naval Supply & Battleship System**: Dynamic naval warfare with automatic counter-response missions
+  - Battleship deployments now trigger enemy anti-ship strikes
+  - Enhanced naval supply routes with intelligent AI responses
+- **⚡ Performance Optimizations**: Integration of Leka's latest scripts for improved performance and balanced spawning
+  - Enhanced zone commander system with optimized resource management
+  - Improved AI spawning algorithms for better game balance
+  - Reduced server load through efficient event handling
+
+### **Enhanced F10 Commands**
+- `upgradeallred` - Upgrades all Red coalition zones
+- `upgradeallblue` - Upgrades all Blue coalition zones
+
+### **Notes**
+- Harbor Tug boats are set as immortal , they are used only to ensure hidden zone belong to correct coallition
+- don't waste energy ad amo on it
+---
+
 ## 📚 Documentation
 
 Detailed guides and information:
@@ -23,8 +43,9 @@ Detailed guides and information:
 
 ## 🎮 Mission Files
 
-- **Mission File (Full)**: [`missions/WWII_Normandy_Foothold_Custom_v1.1.miz`](missions/) - Requires all mods
-- **Mission File (No Mods)**: [`missions/WWII_Normandy_Foothold_Custom_v1.0_nomods.miz`](missions/) - **No mods required** (V1 rocket launchers will not function)
+- **Mission File (Latest)**: [`missions/WWII_Normandy_Foothold_Custom_v1.1.miz`](missions/) - **Latest with Naval Warfare Update**
+- **Mission File (Archive)**: [`archive/WWII_Normandy_Foothold_Custom_v1.0.miz`](archive/) - Requires all mods  
+- **Mission File (No Mods)**: [`archive/WWII_Normandy_Foothold_Custom_v1.0_nomods.miz`](archive/) - **No mods required** (V1 rocket launchers will not function)
 - **Theater**: Normandy 1944 Map (required)
 - **Era**: World War II
 - **Players**: 2-32 recommended
@@ -90,6 +111,7 @@ The mission uses several custom Lua scripts for dynamic gameplay:
 - **Railway Interdiction**: Destroy enemy supply lines for massive strategic impact
 - **V1 Launch Sites**: Eliminate rocket threats (7 sites total)
 - **Radar Sites**: Disable enemy early warning systems
+- **Naval Warfare**: New battleship deployment and counter-response system
 - **Dynamic Events**: Bomber strikes, naval artillery, and more
 
 ### Economy System

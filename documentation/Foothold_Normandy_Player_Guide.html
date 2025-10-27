@@ -368,6 +368,14 @@ code {
 <h1 id="wwii-normandy-foothold---player-guide">WWII Normandy Foothold - Player Guide</h1>
 <h2 id="mission-overview">Mission Overview</h2>
 <p>Welcome to the WWII Normandy Foothold dynamic campaign! This is a persistent territory control mission where the Blue coalition (Allies) fights to liberate France from Red coalition (Axis) control. Your actions directly impact the outcome of the campaign.</p>
+<h3 id="mission-versions">Mission Versions</h3>
+<p><strong>Two versions are available:</strong></p>
+<ul>
+<li><strong>Full Version</strong> (<code>WWII_Normandy_Foothold_Custom_v2.3.6.miz</code>) - Requires all mods installed for complete functionality</li>
+<li><strong>No Mods Version</strong> (<code>WWII_Normandy_Foothold_Custom_v2.3.6_nomods.miz</code>) - <strong>No mods required</strong>, but V1 rocket launchers will be non-functional</li>
+</ul>
+<p><strong>Note:</strong> If playing the nomods version, V1 launch sites will exist on the map but cannot fire rockets due to the missing V1 launcher mod. All other mission features remain fully functional.
+If you switch between versions you will have to delete or rename the file foothold_normandy_1.0.lua</p>
 <hr>
 <h2 id="table-of-contents">Table of Contents</h2>
 <ol>
@@ -407,7 +415,7 @@ code {
 <ul>
 <li><strong>Radar Sites</strong> - Provide enemy early warning (Pointe des Groins, Pointe du Hoc, Cap Gris-Nez)</li>
 <li><strong>V1 Launch Sites</strong> - Active rocket launching facilities</li>
-<li><strong>Hidden Railway Subzones</strong> - Automatically sync with parent zone control</li>
+<li><strong>Hidden Naval base zones</strong> - use for Battleship system</li>
 </ul>
 <h3 id="zone-status">Zone Status</h3>
 <ul>
@@ -430,6 +438,7 @@ Neutral zones can be captured by:</p>
 <li>Waiting for automatic supply convoy arrival</li>
 <li>C47 cargo delivery (not landing due to DCS , orbiting in zone to capture)</li>
 <li>Train &amp; Trucks supply convoy (train will continuously move between zone , due to DCS it can'y be late activated)</li>
+<li>Naval supply</li>
 </ul>
 <hr>
 <h2 id="supply--logistics">Supply &amp; Logistics</h2>
@@ -621,8 +630,17 @@ Each major zone has hidden railway depots that supply military units:</p>
 <li>Wallon-Cappel</li>
 <li>Neuville</li>
 </ul>
+<p><strong>⚠️ Note for Nomods Version:</strong> V1 rocket attacks will NOT occur in the nomods mission version due to the missing V1 launcher mod. V1 sites can still be destroyed for bonus credits, but they will not launch rockets.</p>
 <hr>
 <h2 id="v1-rocket-sites">V1 Rocket Sites</h2>
+<h3 id="%E2%9A%A0%EF%B8%8F-nomods-version-limitation">⚠️ Nomods Version Limitation</h3>
+<p><strong>If playing the nomods version (<code>WWII_Normandy_Foothold_Custom_v2.3.6_nomods.miz</code>):</strong></p>
+<ul>
+<li>V1 launch sites exist on the map</li>
+<li>Sites can still be destroyed for bonus credits (500 cr each)</li>
+<li><strong>V1 rockets will NOT launch</strong> due to missing V1 launcher mod</li>
+<li>All other gameplay features remain functional</li>
+</ul>
 <h3 id="destroying-v1-sites">Destroying V1 Sites</h3>
 <p>Each V1 site has TWO critical targets:</p>
 <h4 id="1-v1-launcher-units">1. <strong>V1 Launcher Units</strong></h4>
@@ -630,12 +648,13 @@ Each major zone has hidden railway depots that supply military units:</p>
 <li>Mobile launcher vehicles (v1_launcher, V1x10)</li>
 <li>Usually 1 launchers per site</li>
 <li>Destroy to stop rocket launches</li>
+<li><strong>Not present in nomods version</strong></li>
 </ul>
 <h4 id="2-fuel-storage-tanks">2. <strong>Fuel Storage Tanks</strong></h4>
 <ul>
 <li>Static fuel tank (&quot;toplivo-bak&quot; model)</li>
 <li>One per site</li>
-<li>Destruction of fule tank will simulate destruction of launcher and Fire control with multiple explosions</li>
+<li>Destruction of fuel tank will simulate destruction of launcher and Fire control with multiple explosions</li>
 <li><strong>Required for site destruction bonus and disable the zone</strong></li>
 </ul>
 <h3 id="complete-destruction-process">Complete Destruction Process</h3>

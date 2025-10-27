@@ -13,6 +13,29 @@ options = {
   ["phosphor"] = false, 
 }
 
+-- Text exclusion system - Add patterns here to ignore in F10 marker events
+local excludedTextPatterns = {
+    "upgradeallred",
+    "upgradeallblue",
+    "debughelp",
+    "help",
+    -- Add more patterns here as needed
+    -- "debugmode",
+    -- "testcommand",
+}
+
+-- Function to check if text should be ignored
+local function isTextExcluded(text)
+    if not text then return false end
+    
+    for _, pattern in ipairs(excludedTextPatterns) do
+        if string.match(text, pattern) ~= nil then
+            return true
+        end
+    end
+    return false
+end
+
 airUnitDB =
     {
     {AAName = "mig29"},
@@ -1381,8 +1404,8 @@ end
 
 function evento:onEvent(event)
     if (world.event.S_EVENT_MARK_CHANGE == event.id) then
-        -- Ignore "upgradeallred" marker to avoid conflicts with other scripts
-        if (string.match(event.text, "upgradeallred") ~= nil) then
+        -- Check if the marker text should be ignored
+        if isTextExcluded(event.text) then
             return
         end
         

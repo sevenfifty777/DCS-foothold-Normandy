@@ -8,8 +8,8 @@ Welcome to the WWII Normandy Foothold dynamic campaign! This is a persistent ter
 
 **Two versions are available:**
 
-- **Full Version** (`WWII_Normandy_Foothold_Custom_v1.0.miz`) - Requires all mods installed for complete functionality
-- **No Mods Version** (`WWII_Normandy_Foothold_Custom_v1.0_nomods.miz`) - **No mods required**, but V1 rocket launchers will be non-functional
+- **Full Version** (`WWII_Normandy_Foothold_Custom_v2.3.6.miz`) - Requires all mods installed for complete functionality
+- **No Mods Version** (`WWII_Normandy_Foothold_Custom_v2.3.6_nomods.miz`) - **No mods required**, but V1 rocket launchers will be non-functional
 
 **Note:** If playing the nomods version, V1 launch sites will exist on the map but cannot fire rockets due to the missing V1 launcher mod. All other mission features remain fully functional.
             If you switch between versions you will have to delete or rename the file foothold_normandy_1.0.lua
@@ -57,7 +57,7 @@ When you spawn at any airfield or carrier, you will receive:
 **Special Zones:**
 - **Radar Sites** - Provide enemy early warning (Pointe des Groins, Pointe du Hoc, Cap Gris-Nez)
 - **V1 Launch Sites** - Active rocket launching facilities
-- **Hidden Railway Subzones** - Automatically sync with parent zone control
+- **Hidden Naval base zones** - use for Battleship system
 
 ### Zone Status
 
@@ -79,6 +79,7 @@ Neutral zones can be captured by:
 - Waiting for automatic supply convoy arrival
 - C47 cargo delivery (not landing due to DCS , orbiting in zone to capture)
 - Train & Trucks supply convoy (train will continuously move between zone , due to DCS it can'y be late activated)
+- Naval supply
 
 ---
 
@@ -279,7 +280,7 @@ Events occur based on EventCommander schedule:
 
 ### ⚠️ Nomods Version Limitation
 
-**If playing the nomods version (`WWII_Normandy_Foothold_Custom_v1.0_nomods.miz`):**
+**If playing the nomods version (`WWII_Normandy_Foothold_Custom_v2.3.6_nomods.miz`):**
 - V1 launch sites exist on the map
 - Sites can still be destroyed for bonus credits (500 cr each)
 - **V1 rockets will NOT launch** due to missing V1 launcher mod
