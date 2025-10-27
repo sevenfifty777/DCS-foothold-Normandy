@@ -31,6 +31,8 @@ A dynamic territory control mission for DCS World set in World War II Normandy, 
 ### **Notes**
 - Harbor Tug boats are set as immortal , they are used only to ensure hidden zone belong to correct coallition
 - don't waste energy ad amo on it
+- Due to lack of ship both side use the same model, so it can be hard to identify who's who , i recommend to enable label if needed
+- I may integrate some Naval mod in next versions to avoid this
 ---
 
 ## 📚 Documentation
