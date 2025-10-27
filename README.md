@@ -43,9 +43,8 @@ Detailed guides and information:
 
 ## 🎮 Mission Files
 
-- **Mission File (Latest)**: [`missions/WWII_Normandy_Foothold_Custom_v1.1.miz`](missions/) - **Latest with Naval Warfare Update**
-- **Mission File (Archive)**: [`archive/WWII_Normandy_Foothold_Custom_v1.0.miz`](archive/) - Requires all mods  
-- **Mission File (No Mods)**: [`archive/WWII_Normandy_Foothold_Custom_v1.0_nomods.miz`](archive/) - **No mods required** (V1 rocket launchers will not function)
+- **Mission File (Latest)**: [`missions`](missions/) - **Latest with Naval Warfare Update** - **Mods and No mods required** (V1 rocket launchers will not function)
+- **Mission File (Archive)**: [`previous versions`](previous versions/) - Requires all mods
 - **Theater**: Normandy 1944 Map (required)
 - **Era**: World War II
 - **Players**: 2-32 recommended
