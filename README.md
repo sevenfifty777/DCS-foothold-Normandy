@@ -25,8 +25,7 @@ A dynamic territory control mission for DCS World set in World War II Normandy, 
   - Reduced server load through efficient event handling
 
 ### **Enhanced F10 Commands**
-- `upgradeallred` - Upgrades all Red coalition zones
-- `upgradeallblue` - Upgrades all Blue coalition zones
+- `upgradeallblue` - Upgrades all Blue coalition zones, same as `upgradeallred`
 
 ### **Notes**
 - Harbor Tug boats are set as immortal , they are used only to ensure hidden zone belong to correct coallition
