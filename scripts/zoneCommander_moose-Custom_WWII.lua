@@ -3552,8 +3552,7 @@ dc.ANTI_SHIP_AIRFIELDS = {
         "BigginHill",
         "Manston",
         "Farnborough",
-        "Dover",
-		"CarrierGroup"
+        "Dover"
     }
 }
 
