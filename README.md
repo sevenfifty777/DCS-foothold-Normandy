@@ -44,7 +44,7 @@ Detailed guides and information:
 ## 🎮 Mission Files
 
 - **Mission File (Latest)**: [`missions`](missions/) - **Latest with Naval Warfare Update** - **Mods and No mods required** (V1 rocket launchers will not function)
-- **Mission File (Archive)**: [`previous_versions`](previous_versions/) - Requires all mods
+- **Mission File (Archive)**: [`previous_versions`](previous_versions/)
 - **Theater**: Normandy 1944 Map (required)
 - **Era**: World War II
 - **Players**: 2-32 recommended
