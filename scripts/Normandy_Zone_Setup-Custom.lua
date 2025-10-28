@@ -809,7 +809,7 @@ CapCarrierGroup = CapCarrierGroup or {
 
 RunwayStrikePlaneTemplate = RunwayStrikePlaneTemplate or {
 	"UKCasMosquitoTemplate",
-	"AXECasJU88Template",
+	"AXERunwayJU88Template",
 }
 
 
@@ -830,9 +830,10 @@ SupplyNavalTemplate = SupplyNavalTemplate or {
 }
 AntiShipPlaneTemplate = AntiShipPlaneTemplate or {
 	"UKAntiShipF4UDTemplate",
+	"UKAntishipP47Template",
 	"AXEAntiShipFw190D9Template",
-	'UKCasP47Template',
-	'UKCasMosquitoTemplate',
+	"AXEAntishipJU88Template",
+	
 }
 
 BattleshipTemplate = BattleshipTemplate or {
@@ -889,6 +890,7 @@ zones.DunkirkPort:addGroups({
 zones.Fecamp:addGroups({
     --GroupCommander:new({name='AXE_Fecamp-resupply-LeHavre', mission='supply', targetzone='Le Havre', type = 'surface'}),
 	GroupCommander:new({name='AXE_Fecamp-patrol-LeHavre', mission='patrol', template='CapPlaneTemplate', MissionType='CAP', targetzone='Le Havre', Altitude = CapAltitude()}),
+	GroupCommander:new({name='UK_Manston-attack-CarrierGroup', mission='attack', template='AntiShipPlaneTemplate', MissionType='ANTISHIP', targetzone='CarrierGroup', Altitude = CasAltitude()}),
 
 })
 zones.Maupertus:addGroups({

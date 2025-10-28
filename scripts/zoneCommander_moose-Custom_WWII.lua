@@ -3660,7 +3660,7 @@ function dc.ExecuteAntiShipCounterMission(missionName, originAirfield, enemySide
         end
         
         -- Spawn anti-ship aircraft and set up intercept mission
-        local antiShipTemplate = enemySide == 1 and 'AXEAntiShipFw190D9Template' or 'UKAntiShipF4UDTemplate'
+        local antiShipTemplate = enemySide == 1 and 'AXEAntishipJU88Template' or 'UKAntiShipF4UDTemplate'
         local spawner = SPAWN:New(antiShipTemplate)
         
         if spawner then
@@ -3675,7 +3675,7 @@ function dc.ExecuteAntiShipCounterMission(missionName, originAirfield, enemySide
                 -- Using configuration pattern consistent with existing implementation at line 16840
                 local antishipMission = AUFTRAG:NewANTISHIP(battleshipGroup, 3000) -- 3000 feet engagement altitude
                 antishipMission:SetMissionAltitude(3000)                           -- Mission execution altitude
-                antishipMission:SetWeaponExpend(AI.Task.WeaponExpend.HALF)         -- Use half of available weapons
+                antishipMission:SetWeaponExpend(AI.Task.WeaponExpend.ALL)         -- Use all available weapons
                 antishipMission:SetEngageAsGroup(false)                            -- Engage individual units
                 antishipMission:SetMissionSpeed(200)                               -- 200 knots mission speed
                 -- antishipMission:SetROE(ENUMS.ROE.WeaponFree)                       -- Free to engage
