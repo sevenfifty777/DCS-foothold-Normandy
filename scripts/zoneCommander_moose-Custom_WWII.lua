@@ -10569,7 +10569,7 @@ function ZoneCommander:upgrade(silent)
 		end
 		if not repaired and Utils.getTableSize(self.built) < #upgrades then
 			local zone = CustomZone:getByName(self.zone)
-			for i,v in pairs(upgrades) do
+			for i,v in ipairs(upgrades) do
 				if not self.built[i] then
 					local isStatic = false
 					local stData   = nil
@@ -13214,6 +13214,13 @@ end
 					trigger.action.outTextForGroup(gr:getID(), 'Cannot load supplies while in air', 10)
 					return
 				end
+				
+				self._lastLoadTs = self._lastLoadTs or {}
+				local gid = gr:getID()
+				local now = timer.getTime()
+				if self._lastLoadTs[gid] and now - self._lastLoadTs[gid] < 1 then return end
+				self._lastLoadTs[gid] = now
+
 				local unitType = un:getTypeName()
 				local loadCount = supplyCount or 1
 				if loadCount > 1 then
@@ -13235,7 +13242,7 @@ end
 						trigger.action.setUnitInternalCargo(un:getName(), 100 * newCount)
 						local msg
 						if newCount > 1 then
-							msg = "Second supply loaded"
+							msg = newCount.." supplies loaded"
 						else
 							msg = "Supplies loaded"
 						end
@@ -13416,58 +13423,59 @@ end
 					if remainingDrops <= 0 then
 						return
 					end
-					local msg
-					if remainingDrops > 1 then
-						msg = "Unloaded "..remainingDrops.." supplies"
-					else
-						msg = "Supplies unloaded"
+					if not didAnnounce then
+						local msg = totalDrops > 1 and ("Unloaded "..totalDrops.." supplies") or "Supplies unloaded"
+						trigger.action.outTextForGroup(gr:getID(), msg, 10)
+						didAnnounce = true
 					end
-					trigger.action.outTextForGroup(gr:getID(), msg, 10)
+					self.carriedCargo[gr:getID()] = nil
+					trigger.action.setUnitInternalCargo(un:getName(), 0)
+					local wasNeutral = zone and zone.side == 0 and zone.active
 					local changed = handleZoneRewards(zone)
+					if wasNeutral and totalDrops > 1 then
+						SCHEDULER:New(nil,function()
+							local z2 = self.battleCommander:getZoneOfUnit(un:getName()) or zone
+							handleZoneRewards(z2)
+						end,{},3,0)
+					end
 					if changed and not didLandingEvent then
 						SCHEDULER:New(nil,function()
 							if zone and zone.wasBlue and un:isExist() then
 								local landingEvent = {
-								id = world.event.S_EVENT_LAND,
-								time = timer.getAbsTime(),
-								initiator = un,
-								initiatorPilotName = un:getPlayerName(),
-								initiator_unit_type = un:getTypeName(),
-								initiator_coalition = un:getCoalition(),
+									id = world.event.S_EVENT_LAND,
+									time = timer.getAbsTime(),
+									initiator = un,
+									initiatorPilotName = un:getPlayerName(),
+									initiator_unit_type = un:getTypeName(),
+									initiator_coalition = un:getCoalition(),
 								}
 								world.onEvent(landingEvent)
 							end
-						end,{},3,0)
+						end,{},5,0)
 						didLandingEvent = true
 					end
-					updateCargo()
-					remainingDrops = remainingDrops - 1
+					remainingDrops = 0
 				end
 
 
-				local function scheduleAdditionalDrops(zoneProvider)
+				local function scheduleAdditionalDrops(initialZone)
 					if remainingDrops <= 0 then
 						return
 					end
 					SCHEDULER:New(nil,function()
-						if remainingDrops <= 0 then
-							return
-						end
 						if not un:isExist() then
 							remainingDrops = 0
 							return
 						end
 						if not self.carriedCargo[gr:getID()] then
 							remainingDrops = 0
+							trigger.action.setUnitInternalCargo(un:getName(),0)
 							return
 						end
-						local followZone = zoneProvider and zoneProvider() or nil
+						local followZone = self.battleCommander:getZoneOfUnit(un:getName()) or initialZone
 						performDrop(followZone)
-						if remainingDrops > 0 then
-							scheduleAdditionalDrops(zoneProvider)
-						else
-							didLandingEvent = false
-						end
+						didLandingEvent = false
+						return
 					end,{},1,0)
 				end
 
@@ -13476,7 +13484,7 @@ end
 					local carrierName = GetNearestCarrierName(COORDINATE:NewFromVec3(un:getPoint()))
 					if carrierName then
 						performDrop(nil)
-						scheduleAdditionalDrops(function() return nil end)
+						scheduleAdditionalDrops(nil)
 						return
 					end
 
@@ -13487,7 +13495,8 @@ end
 								local zObj = ZONE:FindByName(zName)
 								if zObj and group:IsInZone(zObj) then
 									performDrop(nil)
-									scheduleAdditionalDrops(function() return nil end)
+									scheduleAdditionalDrops(nil)
+
 									return
 								end
 							end
@@ -13503,11 +13512,14 @@ end
 					env.info('LogisticCommander:unloadSupplies - wrong side for unit '..un:getName()..' in zone '..zn.zone)
 					return
 				end
-
-				performDrop(zn)
-				scheduleAdditionalDrops(function()
-					return self.battleCommander:getZoneOfUnit(un:getName()) or zn
-				end)
+				if originalSource == zn.zone then
+					self.carriedCargo[gr:getID()] = nil
+					trigger.action.setUnitInternalCargo(un:getName(), 0)
+					local msg = totalDrops > 1 and ("Unloaded "..totalDrops.." supplies") or "Supplies unloaded"
+					trigger.action.outTextForGroup(gr:getID(), msg, 10)
+					return
+				end
+				scheduleAdditionalDrops(zn)
 				return
 			end
 		end
@@ -13582,6 +13594,7 @@ function LogisticCommander:unloadPilot(groupname)
 			local playerName=un:getPlayerName()
 			local zn=self.battleCommander:getZoneOfUnit(un:getName())
 			local friendly=false
+			local isFarpZone=false
 			if zn and (zn.active and zn.side==gr:getCoalition() or zn.wasBlue) then
 				friendly=true
 			else
@@ -13590,6 +13603,7 @@ function LogisticCommander:unloadPilot(groupname)
 						local zObj=ZONE:FindByName(zName)
 						if zObj and GROUP:FindByName(groupname):IsInZone(zObj) then
 							friendly=true
+							isFarpZone=true
 							break
 						end
 					end
@@ -13619,10 +13633,18 @@ function LogisticCommander:unloadPilot(groupname)
 						bc.playerContributions[2][playerName]=(bc.playerContributions[2][playerName] or 0)+totalReward
 						self.battleCommander:addTempStat(playerName,'Pilot Rescue',count)
 					end
-					if pname and pname~='' then
-						trigger.action.outTextForCoalition(un:getCoalition(),"["..playerName.."] rescued ["..pname.."] +"..sumRestore.." credits",5)
+					if isFarpZone then
+						if pname and pname~='' then
+							trigger.action.outTextForCoalition(un:getCoalition(),"["..playerName.."] rescued ["..pname.."] +"..sumRestore.." credits. Reward pending: "..totalReward.." credits.\n(land in non-CTLD zone to redeem).",10)
+						else
+							trigger.action.outTextForCoalition(un:getCoalition(),"["..playerName.."] "..count.." pilots were rescued. reward pending: "..totalReward.." credits.\n(land in non-CTLD zone to redeem).",10)
+						end
 					else
-						trigger.action.outTextForCoalition(un:getCoalition(),"["..playerName.."] "..count.." pilots were rescued. +"..totalReward.." credits",5)
+						if pname and pname~='' then
+							trigger.action.outTextForCoalition(un:getCoalition(),"["..playerName.."] rescued ["..pname.."] +"..sumRestore.." credits.\nTotal Reward: "..totalReward.." credits.",5)
+						else
+							trigger.action.outTextForCoalition(un:getCoalition(),"["..playerName.."] "..count.." pilots were rescued. +"..totalReward.." credits",5)
+						end
 					end
 					self.carriedPilotData[groupid]=nil
 				end

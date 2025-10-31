@@ -1549,7 +1549,47 @@ function (sender, params)
     return
 end)
 
+bc:registerShopItem('dynamicarco', 'Dynamic Tanker (Drogue)', 100, function(sender)
+    if ArcoActive then
+        return 'Arco is still airborne'
+    end
+		if ArcoParentMenu then
+		return 'Choose spawn zone from F10 menu'
+	end
+    buildArcoMenu()
+	trigger.action.outTextForCoalition(2, 'Tanker (Drogue) is requested. Select spawn zone.', 10)
+    return
+end,
+function (sender, params)
+    if ArcoActive then
+        return 'Arco is still airborne'
+    end
+    buildArcoMenu()
 
+	trigger.action.outTextForCoalition(2, 'Tanker (Drogue) is requested. Select spawn zone.', 10)
+    return
+end)
+
+bc:registerShopItem('dynamictexaco', 'Dynamic Tanker (Boom)', 100, function(sender)
+    if TexacoActive then
+        return 'Texaco is still airborne'
+    end
+		if TexacoParentMenu then
+		return 'Choose spawn zone from F10 menu'
+	end
+    buildTexacoMenu()
+	trigger.action.outTextForCoalition(2, 'Tanker (Boom) is requested. Select spawn zone.', 10)
+    return
+end,
+function (sender, params)
+    if TexacoActive then
+        return 'Texaco is still airborne'
+    end
+    buildTexacoMenu()
+
+	trigger.action.outTextForCoalition(2, 'Tanker (Boom) is requested. Select spawn zone.', 10)
+    return
+end)
 
 bc:registerShopItem('dynamiccas', 'Dynamic CAS', 1000,
 function(sender)
@@ -1599,7 +1639,114 @@ function(sender, params)
     end
 end)
 
+bc:registerShopItem('dynamicdecoy', 'Dynamic Decoy', 300,
+function(sender)
+    if decoyActive then
+        return 'Decoy mission still in progress'
+    end
+	if DECOYTargetMenu then
+		return 'Choose target zone from F10 menu'
+	end
 
+    local minNM = 40
+    local allow = {}
+    for _, z in ipairs(bc:getZones()) do
+        if z.side == 1 and findClosestBlueZoneOutside(z.zone, minNM) then
+            allow[z.zone] = true
+        end
+    end
+    if not next(allow) then
+        trigger.action.outTextForCoalition(2, 'No enemy zone is far enough (>'..minNM..' NM) from the front line.', 10)
+        return
+    end
+
+    DECOYTargetMenu = bc:showTargetZoneMenu(2, 'Select Decoy Target', function(targetZoneName, menu)
+        if decoyActive then return end
+        local spawnZone, dist = findClosestBlueZoneOutside(targetZoneName, minNM)
+        if not spawnZone then
+            trigger.action.outTextForCoalition(2, 'No friendly zone available for Decoy spawn '..minNM..'+ NM away.', 15)
+            return
+        end
+        local offset = (dist and dist < minNM) and (minNM - dist) or 0
+        spawnDecoyAt(spawnZone, targetZoneName, offset)
+        DECOYTargetMenu = nil
+    end, 1, nil, allow)
+
+    trigger.action.outTextForCoalition(2, 'Select Decoy target zone from F10', 10)
+    return
+end,
+function(sender, params)
+    if params.zone and params.zone.side == 1 then
+        if decoyActive then
+            return 'Decoy mission still in progress'
+        end
+        local minNM = 40
+        local closestBlue, dist = findClosestBlueZoneOutside(params.zone.zone, minNM)
+        if not closestBlue then
+            return 'No friendly zone available for Decoy spawn.'
+        end
+        local offset = (dist and dist < minNM) and (minNM - dist) or 0
+        spawnDecoyAt(closestBlue, params.zone.zone, offset)
+        return
+    else
+        return 'Can only target enemy zone'
+    end
+end)
+
+
+bc:registerShopItem('dynamicsead', 'Dynamic SEAD', 500,
+function(sender)
+    if seadActive then
+        return 'SEAD mission still in progress'
+    end
+	if SEADTargetMenu then
+		return 'Choose target zone from F10 menu'
+	end
+
+    local minNM = 40
+    local allow = {}
+    for _, z in ipairs(bc:getZones()) do
+        if z.side == 1 and findClosestBlueZoneOutside(z.zone, minNM) then
+            allow[z.zone] = true
+        end
+    end
+    if not next(allow) then
+        trigger.action.outTextForCoalition(2, 'No enemy zone is far enough (>'..minNM..' NM) from the front line.', 10)
+        return
+    end
+
+    SEADTargetMenu = bc:showTargetZoneMenu(2, 'Select SEAD Target', function(targetZoneName, menu)
+        if seadActive then return end
+        local spawnZone, dist = findClosestBlueZoneOutside(targetZoneName, minNM)
+        if not spawnZone then
+            trigger.action.outTextForCoalition(2, 'No friendly zone available for SEAD spawn '..minNM..'+ NM away.', 15)
+            return
+        end
+        local offset = (dist and dist < minNM) and (minNM - dist) or 0
+        spawnSeadAt(spawnZone, targetZoneName, offset)
+        SEADTargetMenu = nil
+    end, 1, nil, allow)
+
+    trigger.action.outTextForCoalition(2, 'Select SEAD target zone from F10', 10)
+    return
+end,
+function(sender, params)
+    if params.zone and params.zone.side == 1 then
+        if seadActive then
+            return 'SEAD mission still in progress'
+        end
+        local minNM = 40
+        local closestBlue, dist = findClosestBlueZoneOutside(params.zone.zone, minNM)
+        if not closestBlue then
+            return 'No friendly zone available for SEAD spawn.'
+        end
+        local offset = (dist and dist < minNM) and (minNM - dist) or 0
+        spawnSeadAt(closestBlue, params.zone.zone, offset)
+        return
+    else
+        return 'Can only target enemy zone'
+    end
+end)
 
 bc:registerShopItem('dynamicbomb', 'Dynamic Bomb run', 500,
 function(sender)
@@ -1657,6 +1804,202 @@ end)
 
 ---------------------------------------------END DYNAMIC SHOP ------------------------------------------
 
+-- local jtacDrones
+-- local jtacTargetMenu = nil
+-- for _,n in ipairs({'jtacDroneColdwar1','jtacDroneColdwar2','jtacDrone1','jtacDrone2'}) do
+--     local g = Group.getByName(n)
+--     if g then g:destroy() end
+-- end
+-- if Era == 'Coldwar' then
+-- jtacDrones = {JTAC:new({name = 'jtacDroneColdwar1'}),JTAC:new({name = 'jtacDroneColdwar2'})}
+-- else
+-- jtacDrones = {JTAC:new({name = 'jtacDrone1'}),JTAC:new({name = 'jtacDrone2'})}
+-- end
+-- bc:registerShopItem('jtac','MQ-9 Reaper JTAC mission',150,function(sender)
+-- 	if jtacTargetMenu then return 'Choose target zone from F10 menu' end
+-- 	local spawnAndOrbit = function(target)
+-- 		if jtacTargetMenu then
+-- 			local zn = bc:getZoneByName(target)
+-- 			for _,v in ipairs(jtacQueue) do
+-- 				if v.tgtzone and v.tgtzone.zone == zn.zone then
+-- 					trigger.action.outTextForCoalition(2,'JTAC already active over '..zn.zone..' Select another zone',10)
+-- 					return 'duplicate zone'
+-- 				end
+-- 			end
+-- 			if #jtacQueue == 2 then
+-- 				local old = table.remove(jtacQueue,1)
+-- 				local gr = Group.getByName(old.name)
+-- 				if gr then gr:destroy() end
+-- 			end
+-- 			local dr = jtacDrones[1]
+-- 			for i,v in ipairs(jtacDrones) do
+-- 				if not Utils.isGroupActive(Group.getByName(v.name)) then dr = v break end
+-- 			end
+-- 			dr:deployAtZone(zn)
+-- 			dr:showMenu()
+-- 			table.insert(jtacQueue,dr)
+-- 			if Era == 'Coldwar' then
+-- 				trigger.action.outTextForCoalition(2,'Friendly Tomcat deployed over '..target..' - JTACs active '..#jtacQueue..' / 2',15)
+-- 			else
+-- 				trigger.action.outTextForCoalition(2,'Reaper drone deployed over '..target..' - JTACs active '..#jtacQueue..' / 2',15)
+-- 			end
+-- 			jtacTargetMenu = nil
+-- 		end
+-- 	end
+-- 	jtacTargetMenu = bc:showTargetZoneMenu(2,'Deploy JTAC',spawnAndOrbit,1)
+-- 	trigger.action.outTextForCoalition(2,'Choose which zone to deploy JTAC at from F10 menu',15)
+-- end,function(sender,params)
+-- 	if params.zone and params.zone.side == 1 then
+-- 		for _,v in ipairs(jtacQueue) do
+-- 			if v.tgtzone and v.tgtzone.zone == params.zone.zone then
+-- 				return 'JTAC already active over '..params.zone.zone..' Choose another zone'
+-- 			end
+-- 		end
+-- 		if #jtacQueue == 2 then
+-- 			local old = table.remove(jtacQueue,1)
+-- 			local gr  = Group.getByName(old.name)
+-- 			if gr then gr:destroy() end
+-- 		end
+-- 		local dr = jtacDrones[1]
+-- 		for i,v in ipairs(jtacDrones) do
+-- 			if not Utils.isGroupActive(Group.getByName(v.name)) then dr = v break end
+-- 		end
+-- 		dr:deployAtZone(params.zone)
+-- 		dr:showMenu()
+-- 		table.insert(jtacQueue,dr)
+-- 		if Era == 'Coldwar' then
+-- 			trigger.action.outTextForCoalition(2,'Friendly Tomcat deployed over '..params.zone.zone..' - JTACs active '..#jtacQueue..' / 2',15)
+-- 		else
+-- 			trigger.action.outTextForCoalition(2,'Reaper drone deployed over '..params.zone.zone..' - JTACs active '..#jtacQueue..' / 2',15)
+-- 		end
+-- 	else
+-- 		return 'Can only target enemy zone'
+-- 	end
+-- end)
+-- ----------------------------------- START own 9 line jtac AM START ----------------------------------
+-- jtacZones = {}
+-- local jtacTargetMenu2 = nil
+-- local droneAM
+-- Group.getByName('JTAC9lineamColdwar'):destroy()
+-- Group.getByName('JTAC9lineam'):destroy()
+-- if Era == 'Coldwar' then
+-- droneAM = JTAC9line:new({name = 'JTAC9lineamColdwar'})
+-- else
+-- droneAM = JTAC9line:new({name = 'JTAC9lineam'})
+-- end
+-- bc:registerShopItem('9lineam', 'Jtac 9line AM', 0, function(sender)
+--     if jtacTargetMenu2 then
+--         return 'Choose target zone from F10 menu'
+--     end
+    
+--     local spawnAndOrbit2 = function(target)
+--         if jtacTargetMenu2 then
+--             local zn = bc:getZoneByName(target)
+--             droneAM:deployAtZone(zn)
+-- 			jtacZones[target] = {drone = Era == 'Coldwar' and 'JTAC9lineamColdwar' or 'JTAC9lineam'}
+			
+-- 		trigger.action.outTextForCoalition(2, 'Reaper drone deployed over ' .. target .. '. Contact Springfield on 241.00 AM ', 30)
+--         jtacTargetMenu2 = nil
+-- 		end
+--     end
+    
+--     jtacTargetMenu2 = bc:showTargetZoneMenu(2, 'Deploy JTAC to Zone', spawnAndOrbit2, 1)
+--     trigger.action.outTextForCoalition(2, 'Choose which zone to deploy JTAC at from F10 menu', 15)
+-- end,
+-- function(sender, params)
+--     if params.zone and params.zone.side == 1 then
+--         droneAM:deployAtZone(params.zone)
+--         jtacZones[params.zone.zone] = {drone = Era == 'Coldwar' and 'JTAC9lineamColdwar' or 'JTAC9lineam'}
+-- 		if Era == 'Coldwar' then
+-- 			trigger.action.outTextForCoalition(2, 'Friendly Tomcat deployed over ' .. params.zone.zone .. '. Contact Springfield on 241.00 AM ', 30)
+        
+--     	else
+-- 			trigger.action.outTextForCoalition(2, 'Reaper drone deployed over ' .. params.zone.zone .. '. Contact Springfield on 241.00 AM ', 30)
+-- 		end
+--     else
+--         return 'Can only target enemy zone'
+--     end
+-- end)
+
+--   ------------------------------ END 9 line jtac AM END ----------------------------------
+--   ----------------------------- START 9 line jtac fm START ---------------------------
+-- Group.getByName('JTAC9linefmColdwar'):destroy()
+-- Group.getByName('JTAC9linefm'):destroy()
+-- local jtacTargetMenu3 = nil
+-- local droneFM
+-- if Era == 'Coldwar' then
+-- droneFM = JTAC9line:new({name = 'JTAC9linefmColdwar'})
+-- else
+-- droneFM = JTAC9line:new({name = 'JTAC9linefm'})
+-- end
+-- bc:registerShopItem('9linefm', 'Jtac 9line FM', 0, function(sender)
+--     if jtacTargetMenu3 then
+--         return 'Choose target zone from F10 menu'
+--     end
+    
+--     local spawnAndOrbit3 = function(target)
+--         if jtacTargetMenu3 then
+--             local zn = bc:getZoneByName(target)
+--             droneFM:deployAtZone(zn)
+			
+-- 			jtacZones[target] = {drone = Era == 'Coldwar' and 'JTAC9linefmColdwar' or 'JTAC9linefm'}
+			
+		
+-- 		if Era == 'Coldwar' then
+-- 			trigger.action.outTextForCoalition(2, 'Friendly Tomcat deployed over ' .. target .. '. Contact Uzi on 31.00 FM ', 30)
+-- 		else
+-- 			trigger.action.outTextForCoalition(2, 'Reaper drone deployed over ' .. target .. '. Contact Uzi on 31.00 FM ', 30)  
+-- 		end            
+--             jtacTargetMenu3 = nil
+--         end
+--     end
+    
+--     jtacTargetMenu3 = bc:showTargetZoneMenu(2, 'Deploy JTAC to Zone', spawnAndOrbit3, 1)
+--     trigger.action.outTextForCoalition(2, 'Choose which zone to deploy JTAC at from F10 menu', 15)
+-- end,
+-- function(sender, params)
+--     if params.zone and params.zone.side == 1 then
+--         droneFM:deployAtZone(params.zone)
+--         jtacZones[params.zone.zone] = {drone = Era == 'Coldwar' and 'JTAC9linefmColdwar' or 'JTAC9linefm'}
+
+-- 		if Era == 'Coldwar' then
+-- 			trigger.action.outTextForCoalition(2, 'Friendly Tomcat deployed over ' .. params.zone.zone .. '. Contact Uzi on 31.00 FM ', 30)
+        
+--     	else
+-- 			trigger.action.outTextForCoalition(2, 'Reaper drone deployed over ' .. params.zone.zone .. '. Contact Uzi on 31.00 FM ', 30)
+-- 		end
+--     else
+--         return 'Can only target enemy zone'
+--     end
+-- end)
+
+  -------------------------- END 9 line jtac FM END ----------------------------------
+
+-- function CheckJtacStatus()
+-- 	 if jtacZones == nil then
+-- 			return false
+-- 		end
+
+--     local jtacFound = false
+    
+--     for zoneName, jtacInfo in pairs(jtacZones) do
+--         local jtacGroup = Group.getByName(jtacInfo.drone)
+--         if jtacGroup and Utils.isGroupActive(jtacGroup) then
+--             local zone = bc:getZoneByName(zoneName)
+--             if zone and (zone.side == 0 or not zone.active) then
+--                 jtacGroup:destroy()
+--                 jtacZones[zoneName] = nil
+--                 jtacFound = true
+--             end
+--         else
+--             jtacZones[zoneName] = nil
+--         end
+--     end
+
+--     return jtacFound
+-- end
+
+  -------------------------- END 9 line jtac FM END ----------------------------------
 local smoketargets = function(tz)
 	if not tz or not tz.built then
 		env.info("smoketargets: no tz/built for zone "..tostring(tz and tz.zone or "nil"))
@@ -1723,9 +2066,187 @@ function(sender, params)
 		return 'Can only target enemy zone'
 	end
 end)
-
-
-
+-- if not Era == 'Coldwar' then
+-- Group.getByName('ewAircraft'):destroy()
+-- local jamMenu = nil
+-- bc:registerShopItem('jam', 'Jam radars at zone', 500, function(sender)
+-- 	local gr = Group.getByName('ewAircraft')
+-- 	if Utils.isGroupActive(gr) then 
+-- 		return 'Jamming mission still in progress'
+-- 	end
+	
+-- 	RespawnGroup('ewAircraft')
+	
+-- 	if jamMenu then
+-- 		return 'Choose target zone from F10 menu'
+-- 	end
+	
+-- 	local startJam = function(target)
+-- 		if jamMenu then
+-- 			bc:jamRadarsAtZone('ewAircraft', target)
+-- 			jamMenu = nil
+-- 			trigger.action.outTextForCoalition(2, 'Growler jamming radars at '..target, 15)
+-- 		end
+-- 	end
+	
+-- 	jamMenu = bc:showTargetZoneMenu(2, 'Jamming target', startJam, 1)
+-- 	trigger.action.outTextForCoalition(2, 'Choose target zone from F10 menu', 15)
+-- end,
+-- function(sender, params)
+-- 	if params.zone and params.zone.side == 1 and not params.zone.suspended then
+-- 		local gr = Group.getByName('ewAircraft')
+-- 		if Utils.isGroupActive(gr) then 
+-- 			return 'Jamming mission still in progress'
+-- 		end
+		
+-- 		RespawnGroup('ewAircraft')
+		
+-- 		SCHEDULER:New(nil,function(target)
+-- 			local ew = Group.getByName('ewAircraft')
+-- 			if ew then
+-- 				local err = bc:jamRadarsAtZone('ewAircraft', target)
+-- 				if err then
+-- 					return err
+-- 				end
+				
+-- 				trigger.action.outTextForCoalition(2, 'Growler jamming radars at '..target, 15)
+-- 			end
+-- 		end,{params.zone.zone},2,0)
+		
+-- 	else
+-- 		return 'Can only target enemy zone'
+-- 	end
+-- end)
+-- end
+-- Group.getByName('ca-tanks-Coldwar'):destroy()
+-- Group.getByName('ca-tanks'):destroy()
+-- tanksMenu = nil
+-- bc:registerShopItem('armor', 'Deploy armor (for combined arms)', 100, function(sender)
+	
+-- 	if tanksMenu then
+-- 		return 'Choose deploy zone from F10 menu'
+-- 	end
+	
+-- 	local deployTanks = function(target)
+-- 		if tanksMenu then
+		
+-- 			local zn = CustomZone:getByName(target)
+-- 			zn:spawnGroup((Era == 'Coldwar') and 'ca-tanks-Coldwar' or 'ca-tanks')
+			
+-- 			tanksMenu = nil
+-- 			trigger.action.outTextForCoalition(2, 'Friendly armor deployed at '..target, 15)
+-- 		end
+-- 	end
+	
+-- 	tanksMenu = bc:showTargetZoneMenu(2, 'Deploy armor (Choose friendly zone)', deployTanks, 2)
+-- 	trigger.action.outTextForCoalition(2, 'Choose deploy zone from F10 menu', 15)
+-- end,
+-- function(sender, params)
+-- 	if params.zone and params.zone.side == 2 and not params.zone.suspended then
+		
+-- 		local zn = CustomZone:getByName(params.zone.zone)
+-- 		zn:spawnGroup((Era == 'Coldwar') and 'ca-tanks-Coldwar' or 'ca-tanks')
+-- 		trigger.action.outTextForCoalition(2, 'Friendly armor deployed at '..params.zone.zone, 15)
+-- 	else
+-- 		return 'Can only deploy at friendly zone'
+-- 	end
+-- end)
+-- Group.getByName('ca-arty'):destroy()
+-- artyMenu = nil
+-- bc:registerShopItem('artillery', 'Deploy artillery (for combined arms)', 100, function(sender)
+	
+-- 	if artyMenu then
+-- 		return 'Choose deploy zone from F10 menu'
+-- 	end
+	
+-- 	local deployArty = function(target)
+-- 		if artyMenu then
+		
+-- 			local zn = CustomZone:getByName(target)
+-- 			zn:spawnGroup('ca-arty')
+			
+-- 			artyMenu = nil
+-- 			trigger.action.outTextForCoalition(2, 'Friendly artillery deployed at '..target, 15)
+-- 		end
+-- 	end
+	
+-- 	artyMenu = bc:showTargetZoneMenu(2, 'Deploy artillery (Choose friendly zone)', deployArty, 2)
+-- 	trigger.action.outTextForCoalition(2, 'Choose deploy zone from F10 menu', 15)
+-- end,
+-- function(sender, params)
+-- 	if params.zone and params.zone.side == 2 and not params.zone.suspended then
+		
+-- 		local zn = CustomZone:getByName(params.zone.zone)
+-- 		zn:spawnGroup('ca-arty')
+-- 		trigger.action.outTextForCoalition(2, 'Friendly artillery deployed at '..params.zone.zone, 15)
+-- 	else
+-- 		return 'Can only deploy at friendly zone'
+-- 	end
+-- end)
+-- Group.getByName('ca-recon'):destroy()
+-- reconMenu = nil
+-- bc:registerShopItem('recon', 'Deploy recon group (for combined arms)', 50, function(sender)
+	
+-- 	if reconMenu then
+-- 		return 'Choose deploy zone from F10 menu'
+-- 	end
+	
+-- 	local deployRecon = function(target)
+-- 		if reconMenu then
+		
+-- 			local zn = CustomZone:getByName(target)
+-- 			zn:spawnGroup('ca-recon')
+			
+-- 			reconMenu = nil
+-- 			trigger.action.outTextForCoalition(2, 'Friendly recon group deployed at '..target, 15)
+-- 		end
+-- 	end
+	
+-- 	reconMenu = bc:showTargetZoneMenu(2, 'Deploy recon group (Choose friendly zone)', deployRecon, 2)
+-- 	trigger.action.outTextForCoalition(2, 'Choose deploy zone from F10 menu', 15)
+-- end,
+-- function(sender, params)
+-- 	if params.zone and params.zone.side == 2 then
+		
+-- 		local zn = CustomZone:getByName(params.zone.zone)
+-- 		zn:spawnGroup('ca-recon')
+-- 		trigger.action.outTextForCoalition(2, 'Friendly recon group deployed at '..params.zone.zone, 15)
+-- 	else
+-- 		return 'Can only deploy at friendly zone'
+-- 	end
+-- end)
+-- Group.getByName('ca-airdef'):destroy()
+-- airdefMenu = nil
+-- bc:registerShopItem('airdef', 'Deploy air defence (for combined arms)', 150, function(sender)
+	
+-- 	if airdefMenu then
+-- 		return 'Choose deploy zone from F10 menu'
+-- 	end
+	
+-- 	local deployAirDef = function(target)
+-- 		if airdefMenu then
+		
+-- 			local zn = CustomZone:getByName(target)
+-- 			zn:spawnGroup('ca-airdef')
+			
+-- 			airdefMenu = nil
+-- 			trigger.action.outTextForCoalition(2, 'Friendly air defence deployed at '..target, 15)
+-- 		end
+-- 	end
+	
+-- 	airdefMenu = bc:showTargetZoneMenu(2, 'Deploy air defence (Choose friendly zone)', deployAirDef, 2)
+-- 	trigger.action.outTextForCoalition(2, 'Choose deploy zone from F10 menu', 15)
+-- end,
+-- function(sender, params)
+-- 	if params.zone and params.zone.side == 2 and not params.zone.suspended then
+		
+-- 		local zn = CustomZone:getByName(params.zone.zone)
+-- 		zn:spawnGroup('ca-airdef')
+-- 		trigger.action.outTextForCoalition(2, 'Friendly air defence deployed at '..params.zone.zone, 15)
+-- 	else
+-- 		return 'Can only deploy at friendly zone'
+-- 	end
+-- end)
 -- new menu
 local supplyMenu=nil
 bc:registerShopItem('capture','Capture neutral zone',500,
@@ -1920,7 +2441,67 @@ function(sender,params)
 		return 'Must pick friendly zone'
 	end
 end)
+local samLabel = (Era == 'Coldwar') and 'Add Hawk system to a zone'
+                                   or  'Add Nasams system to a zone'
+local samMenu=nil
+bc:registerShopItem('zsam',samLabel,2000,function(sender)
+	if samMenu then
+		return 'Already choosing a zone'
+	end
+	local pickZone=function(zName)
+		if samMenu then
+			local z=bc:getZoneByName(zName)
+			if not z or z.side~=2 or z.suspended then
+				return 'Must pick friendly zone'
+			end
+		if z.upgradesUsed >= (1 + (bc.globalExtraUnlock and 1 or 0)) then
+			return 'Zone already upgraded'
+		end
+            local slot = (Era == 'Coldwar') and 'blueHAWK Coldwar' or 'bluePD1'
+            z:addExtraSlot(slot)
+			z:updateLabel()
+			local sys = (Era == 'Coldwar') and 'Hawk' or 'Nasams'
+            if bc.globalExtraUnlock then	
+                trigger.action.outTextForCoalition(2,sys..' added to '..zName..' for 2000',10)
+            else
+                trigger.action.outTextForCoalition(2,sys..' added to '..zName..' for 2000 - buy the Global extra slot to upgrade this zone again',30)
+            end
+			missionCommands.removeItemForCoalition(2,samMenu)
+			samMenu=nil
+		end
+	end
 
+	local allow = buildAllowTable()
+	if not next(allow) then
+		if not bc.globalExtraUnlock then
+			return 'All zones already upgraded - purchase Global extra slot to add another'
+		end
+		return 'No eligible zone'
+	end
+	samMenu = bc:showTargetZoneMenu(2,'Choose Zone for SAM',     pickZone,2,nil,allow)
+	trigger.action.outTextForCoalition(2,'Select friendly zone from F10 menu.',15)
+end,
+function(sender,params)
+	if params.zone and params.zone.side==2 and not params.zone.suspended then
+		local max = 1 + (bc.globalExtraUnlock and 1 or 0)
+		if params.zone.upgradesUsed >= max then
+			if not bc.globalExtraUnlock then
+				return 'Zone already upgraded - purchase Global extra slot to add another'
+			end
+			return 'Zone already upgraded'
+		end
+		params.zone:addExtraSlot((Era == 'Coldwar') and 'blueHAWK Coldwar' or 'bluePD1')
+		params.zone:updateLabel()
+		local sys = (Era == 'Coldwar') and 'Hawk' or 'Nasams'
+        if bc.globalExtraUnlock then
+            trigger.action.outTextForCoalition(2,sys..' added to '..params.zone.zone..' for 2000',10)
+        else
+            trigger.action.outTextForCoalition(2,sys..' added to '..params.zone.zone..' for 2000 - buy the Global extra slot to upgrade this zone again',30)
+        end
+	else
+		return 'Must pick friendly zone'
+	end
+end)
 
 local armMenu=nil
 bc:registerShopItem('zarm','Add armor group to a zone',1000,function(sender)
@@ -1979,6 +2560,62 @@ function(sender,params)
 		return 'Must pick friendly zone'
 	end
 end)
+--Group.getByName('bluePATRIOT'):destroy()
+-- local patMenu=nil
+-- bc:registerShopItem('zpat','Add Patriot system to zone',5000,function(sender)
+-- 	if patMenu then
+-- 		return 'Already choosing a zone'
+-- 	end
+-- 	local pickZone=function(zName)
+-- 		if patMenu then
+-- 			local z=bc:getZoneByName(zName)
+-- 			if not z or z.side~=2 or z.suspended then
+-- 				return 'Must pick friendly zone'
+-- 			end
+-- 			if z.upgradesUsed >= (1 + (bc.globalExtraUnlock and 1 or 0)) then
+-- 				return 'Zone already upgraded'
+-- 			end
+-- 			z:addExtraSlot('bluePATRIOT')
+-- 			z:updateLabel()
+-- 			if bc.globalExtraUnlock then
+--                 trigger.action.outTextForCoalition(2,'Patriot added to '..zName..' for 5000',10)
+--             else
+--                 trigger.action.outTextForCoalition(2,'Patriot added to '..zName..' for 5000 - buy the Global extra slot to upgrade this zone again',30)
+--             end
+-- 			missionCommands.removeItemForCoalition(2,patMenu)
+-- 			patMenu=nil
+-- 		end
+-- 	end
+-- 	local allow = buildAllowTable()
+-- 	if not next(allow) then
+-- 		if not bc.globalExtraUnlock then
+-- 			return 'All zones already upgraded - purchase Global extra slot to add another'
+-- 		end
+-- 		return 'No eligible zone'
+-- 	end
+-- 	patMenu = bc:showTargetZoneMenu(2,'Choose Zone for Patriot SAM system',pickZone,2,nil,allow)
+-- 	trigger.action.outTextForCoalition(2,'Select friendly zone from F10 menu.',15)
+-- end,
+-- function(sender,params)
+-- 	if params.zone and params.zone.side==2 and not params.zone.suspended then
+-- 		local max = 1 + (bc.globalExtraUnlock and 1 or 0)
+-- 		if params.zone.upgradesUsed >= max then
+-- 			if not bc.globalExtraUnlock then
+-- 				return 'Zone already upgraded - purchase Global extra slot to add another'
+-- 			end
+-- 			return 'Zone already upgraded'
+-- 		end
+-- 		params.zone:addExtraSlot('bluePATRIOT')
+-- 		params.zone:updateLabel()
+-- 		if bc.globalExtraUnlock then
+-- 		trigger.action.outTextForCoalition(2,'Patriot added to '..params.zone.zone..' for 5000',10)
+-- 		else
+-- 		trigger.action.outTextForCoalition(2,'Patriot added to '..params.zone.zone..' for 5000 - buy the Global extra slot to upgrade this zone again',30)
+-- 		end
+-- 	else
+-- 		return 'Must pick friendly zone'
+-- 	end
+-- end)
 
 bc:registerShopItem('gslot','Unlock extra upgrade slot',3000,function(sender)
     if bc.globalExtraUnlock then
@@ -1995,10 +2632,10 @@ end)
 ------------------------------------------- End of Zone upgrades ----------------------------------------
 
 -- first value below is how much in stock, the second number value is the ranking in the shop menu list, the third is the new ranking system.
-bc:addShopItem(2, 'jtac', -1, 1, 2) -- MQ-9 Reaper JTAC mission
-bc:addShopItem(2, 'dynamiccap', -1, 2, 2) -- CAP
-bc:addShopItem(2, 'dynamiccas', -1, 3, 5) -- CAS
-bc:addShopItem(2, 'dynamicbomb', -1, 4, 4) -- Bomber
+--bc:addShopItem(2, 'jtac', -1, 1, 2) -- MQ-9 Reaper JTAC mission
+bc:addShopItem(2, 'dynamiccap', -1, 1, 1) -- CAP
+bc:addShopItem(2, 'dynamiccas', -1, 2, 1) -- CAS
+bc:addShopItem(2, 'dynamicbomb', -1, 3, 1) -- Bomber
 --bc:addShopItem(2, 'dynamicsead', -1, 5, 4) -- SEAD
 --bc:addShopItem(2, 'dynamicdecoy', -1, 6, 1) -- Decoy flight
 --[[ if UseStatics == true then
@@ -2007,15 +2644,15 @@ end ]]
 -- bc:addShopItem(2, 'dynamicarco', -1, 8, 3) -- Navy tanker
 -- bc:addShopItem(2, 'dynamictexaco', -1, 9, 3) -- Airforce tanker
 
-bc:addShopItem(2, 'capture', -1, 10, 1) -- emergency capture
-bc:addShopItem(2, 'smoke', -1, 11, 1) -- smoke on target
-bc:addShopItem(2, 'intel', -1, 12, 5) -- Intel
-bc:addShopItem(2, 'supplies2', -1, 13, 1) -- upgrade friendly zone
-bc:addShopItem(2, 'supplies', -1, 14, 6) -- fully upgrade friendly zone
-bc:addShopItem(2, 'zinf', -1, 15, 5) -- add infantry to a zone
-bc:addShopItem(2, 'zarm', -1, 16, 7) -- add armour group to a zone
+bc:addShopItem(2, 'capture', -1, 4, 1) -- emergency capture
+bc:addShopItem(2, 'smoke', -1, 5, 1) -- smoke on target
+bc:addShopItem(2, 'intel', -1, 6, 1) -- Intel
+bc:addShopItem(2, 'supplies2', -1, 7, 1) -- upgrade friendly zone
+bc:addShopItem(2, 'supplies', -1, 8, 1) -- fully upgrade friendly zone
+bc:addShopItem(2, 'zinf', -1, 9, 1) -- add infantry to a zone
+bc:addShopItem(2, 'zarm', -1, 10, 1) -- add armour group to a zone
 --bc:addShopItem(2, 'zsam', -1, 17, 6) -- add Nasams to a zone
-bc:addShopItem(2, 'gslot', 1, 18, 9) -- add another slot for upgrade
+bc:addShopItem(2, 'gslot', 1, 11, 1) -- add another slot for upgrade
 -- if Era == 'Modern' then
 --     bc:addShopItem(2, 'zpat', -1, 19, 8) -- Patriot system.
 -- end
