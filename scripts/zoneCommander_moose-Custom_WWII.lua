@@ -500,7 +500,7 @@ do
 		end
 		if found then return found end
 		INVALID_SPAWN_SUB_ZONES[zoneName] = true
-		if map=="GermanyCW" or map=="Normandy" then
+		if map=="GermanyCW" --[[ or map=="Normandy" ]] then
 			for _=1,attempts do
 				local coord = zone:GetRandomCoordinate()
 				if coord then return coord end
