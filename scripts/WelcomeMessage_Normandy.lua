@@ -103,10 +103,11 @@ function RespawnStaticsForAirbase(airbaseName, coalitionSide)
         countryID = country.id.USA
     elseif coalitionSide == coalition.side.RED then
         countryID = country.id.RUSSIA
+    elseif coalitionSide == coalition.side.NEUTRAL then
+        countryID = country.id.UN_PEACEKEEPERS
     else
         return
     end
-
     for _, staticName in ipairs(statics) do
         local static = STATIC:FindByName(staticName, false)
         if static and static:IsAlive() then
@@ -760,9 +761,12 @@ if event.id == EVENTS.BaseCaptured and event.Place then
 			local clientSet = SET_CLIENT:New():FilterCategories("plane"):FilterCoalitions("blue"):FilterAlive():FilterOnce()
 			clientSet:ForEachClient(function(client)
 				SetupATISMenu(client)  
-				
-				local messageText = string.format("ATIS for %s is now available.", capturedBaseName)
-				MESSAGE:New(messageText, 25, ""):ToClient(client)
+				SCHEDULER:New(nil, function()
+                local group=client:GetGroup()
+                local zname
+                for k,v in pairs(atisZones) do if v.airbaseName==capturedBaseName then zname=k break end end
+                if zname then sendATISInformation(client,group,zname) end
+                end, {}, 10)
 			end)
 		end
 	end  

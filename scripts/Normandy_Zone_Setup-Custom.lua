@@ -44,7 +44,7 @@ upgrades = {
         red = {}
     },
 	airfieldFR1 = {
-        blue = {"UK-INF-MK1", "UK-ARMOR", "UK-AAA-OPTFLAK", "UK-TRUCK", "UK-AAA-bofors", "UK_ART-FHM2A1"},
+        blue = {"UK-INF-MK1", "UK-ARMOR", "UK-AAA-OPTFLAK", "UK-TRUCK", "UK-AAA-bofors", "UK-ART-FHM2A1"},
         red = {"AXE-ART-FH", "AXE-ARMOR-LIGHT", "AXE-AAA-OPTFLAK", "AXE-TRUCK", "AXE-AAA-18-36"}
     },
 	airfieldFR2 = {
@@ -514,243 +514,7 @@ function fUnitCoord(pzone)
 		return false
 	end
 end;
--- Enhanced railway subzone synchronization system
--- RailwaySyncSystem = {}
--- RailwaySyncSystem.syncInProgress = false
--- RailwaySyncSystem.lastSyncTime = 0
--- RailwaySyncSystem.syncCooldown = 5 -- Minimum seconds between sync operations
--- RailwaySyncSystem.pendingSyncs = {}
--- RailwaySyncSystem.syncHistory = {}
--- RailwaySyncSystem.maxHistorySize = 50
 
--- -- Function to synchronize railway subzone coalition with parent zone
--- function synchronizeRailwaySubzones(forceSync)
---     -- Prevent concurrent sync operations
---     if RailwaySyncSystem.syncInProgress and not forceSync then
---         env.info("Railway Coalition Sync: Sync already in progress, queuing request")
---         return false
---     end
-
---     -- Rate limiting to prevent performance issues
---     local currentTime = timer.getAbsTime()
---     if not forceSync and (currentTime - RailwaySyncSystem.lastSyncTime) < RailwaySyncSystem.syncCooldown then
---         env.info("Railway Coalition Sync: Rate limited, queuing sync request")
---         table.insert(RailwaySyncSystem.pendingSyncs, {time = currentTime, force = forceSync})
---         return false
---     end
-
---     RailwaySyncSystem.syncInProgress = true
---     RailwaySyncSystem.lastSyncTime = currentTime
-
---     env.info("Railway Coalition Sync: Starting robust synchronization of railway subzones with parent zones")
-
---     local syncResults = {
---         success = 0,
---         failed = 0,
---         skipped = 0,
---         errors = {}
---     }
-
---     for subzoneName, parentZoneName in pairs(RAILWAY_SUBZONE_MAPPING) do
---         local success, errorMsg = pcall(function()
---             local subzone = zones[subzoneName]
---             local parentZone = zones[parentZoneName]
-
---             -- Validate both zones exist
---             if not subzone then
---                 local error = "Railway Coalition Sync: Subzone " .. subzoneName .. " not found in zones table"
---                 env.error(error)
---                 table.insert(syncResults.errors, error)
---                 syncResults.failed = syncResults.failed + 1
---                 return
---             end
-
---             if not parentZone then
---                 local error = "Railway Coalition Sync: Parent zone " .. parentZoneName .. " not found in zones table"
---                 env.error(error)
---                 table.insert(syncResults.errors, error)
---                 syncResults.failed = syncResults.failed + 1
---                 return
---             end
-
---             -- Skip if already synchronized (unless force sync)
---             if not forceSync and subzone.side == parentZone.side then
---                 --env.info("Railway Coalition Sync: " .. subzoneName .. " already matches parent " .. parentZoneName .. " (both side " .. subzone.side .. ")")
---                 syncResults.skipped = syncResults.skipped + 1
---                 return
---             end
-
---             -- Validate parent zone state
---             if not parentZone.active then
---                 --env.info("Railway Coalition Sync: Parent zone " .. parentZoneName .. " is inactive, skipping sync for " .. subzoneName)
---                 syncResults.skipped = syncResults.skipped + 1
---                 return
---             end
-
---             --env.info("Railway Coalition Sync: Synchronizing " .. subzoneName .. " (side " .. subzone.side .. ") with parent " .. parentZoneName .. " (side " .. parentZone.side .. ")")
-
---             -- Store old state for rollback capability
---             local oldSubzoneSide = subzone.side
---             local oldBcSubzoneSide = nil
---             local bcSubzone = bc:getZoneByName(subzone.zone)
---             if bcSubzone then
---                 oldBcSubzoneSide = bcSubzone.side
---             end
-
---             -- Perform synchronization
---             local syncSuccess = false
---             if pcall(function()
---                 -- Change the subzone to match parent zone coalition
---                 subzone.side = parentZone.side
-
---                 -- Also update the BattleCommander zone if it exists
---                 if bcSubzone then
---                     bcSubzone.side = parentZone.side
---                     --env.info("Railway Coalition Sync: Updated BC zone coalition for " .. subzoneName)
---                 end
-
---                 -- If the subzone has an associated zone object in DCS, update it as well
---                 local dcsZone = trigger.misc.getZone(subzone.zone)
---                 if dcsZone then
---                    --env.info("Railway Coalition Sync: Updated DCS zone coalition for " .. subzoneName)
---                 end
-
---                 syncSuccess = true
---             end) then
---                 if syncSuccess then
---                     --env.info("Railway Coalition Sync: Successfully synchronized " .. subzoneName .. " to side " .. parentZone.side)
---                     syncResults.success = syncResults.success + 1
-
---                     -- Record sync in history
---                     table.insert(RailwaySyncSystem.syncHistory, {
---                         time = currentTime,
---                         subzone = subzoneName,
---                         parent = parentZoneName,
---                         oldSide = oldSubzoneSide,
---                         newSide = parentZone.side,
---                         success = true
---                     })
-
---                     -- Trim history if too large
---                     if #RailwaySyncSystem.syncHistory > RailwaySyncSystem.maxHistorySize then
---                         table.remove(RailwaySyncSystem.syncHistory, 1)
---                     end
-
---                     -- Provide feedback to players
---                     local coalitionText = parentZone.side == 1 and "RED" or "BLUE"
---                     trigger.action.outTextForCoalition(parentZone.side,
---                         "Railway station " .. subzoneName .. " now under " .. coalitionText .. " control", 10)
---                 else
---                     -- Rollback on failure
---                     subzone.side = oldSubzoneSide
---                     if bcSubzone then
---                         bcSubzone.side = oldBcSubzoneSide
---                     end
---                     syncResults.failed = syncResults.failed + 1
---                 end
---             else
---                 -- Rollback on exception
---                 subzone.side = oldSubzoneSide
---                 if bcSubzone then
---                     bcSubzone.side = oldBcSubzoneSide
---                 end
---                 syncResults.failed = syncResults.failed + 1
---             end
---         end)
-
---         if not success then
---             local error = "Railway Coalition Sync: Exception during sync of " .. subzoneName .. ": " .. errorMsg
---             env.error(error)
---             table.insert(syncResults.errors, error)
---             syncResults.failed = syncResults.failed + 1
---         end
---     end
-
---     -- Refresh supply arrows to reflect changes
---     if syncResults.success > 0 then
---         env.info("Railway Coalition Sync: Refreshing supply arrows due to " .. syncResults.success .. " successful synchronizations")
---         pcall(function() bc:drawSupplyArrows() end)
---     end
-
---     -- Log summary
---     env.info(string.format("Railway Coalition Sync: Complete - Success: %d, Failed: %d, Skipped: %d, Errors: %d",
---         syncResults.success, syncResults.failed, syncResults.skipped, #syncResults.errors))
-
---     if #syncResults.errors > 0 then
---         env.error("Railway Coalition Sync: Errors encountered:")
---         for _, error in ipairs(syncResults.errors) do
---             env.error("  " .. error)
---         end
---     end
-
---     RailwaySyncSystem.syncInProgress = false
-
---     -- Process any pending sync requests
---     -- if #RailwaySyncSystem.pendingSyncs > 0 then
---     --     local nextSync = table.remove(RailwaySyncSystem.pendingSyncs, 1)
---     --     --env.info("Railway Coalition Sync: Processing queued sync request")
---     --     timer.scheduleFunction(synchronizeRailwaySubzones, {nextSync.force}, timer.getTime() + 1)
---     -- end
--- 	if #RailwaySyncSystem.pendingSyncs > 0 and (timer.getAbsTime() - RailwaySyncSystem.lastSyncTime) >= RailwaySyncSystem.syncCooldown then
--- 		local nextSync = table.remove(RailwaySyncSystem.pendingSyncs, 1)
--- 		timer.scheduleFunction(synchronizeRailwaySubzones, {nextSync.force}, timer.getTime() + 1)
--- 	end
-
---     return syncResults.success > 0
--- end
-
--- -- Make the function globally accessible
--- _G.synchronizeRailwaySubzones = synchronizeRailwaySubzones
-
--- -- Function to register triggers for parent zones to update railway subzones when captured
--- local function registerRailwaySubzoneTriggers()
---     env.info("Railway Coalition Sync: Registering triggers for parent zones")
-    
---     for subzoneName, parentZoneName in pairs(RAILWAY_SUBZONE_MAPPING) do
---         local subzone = zones[subzoneName]
---         local parentZone = zones[parentZoneName]
-        
---         if subzone and parentZone then
---             -- Register capture trigger
---             parentZone:registerTrigger('captured', function(event, sender)
---                 --env.info("Railway Coalition Sync: Parent zone " .. parentZoneName .. " captured by side " .. sender.side .. ", updating subzone " .. subzoneName)
-                
---                 -- Update both the local zones table and the BattleCommander zone
---                 local railwaySubzone = zones[subzoneName]
---                 local bcRailwaySubzone = bc:getZoneByName(subzone.zone)
-                
---                 if railwaySubzone then
---                     railwaySubzone.side = sender.side
---                     --env.info("Railway Coalition Sync: Updated local " .. subzoneName .. " to side " .. sender.side)
---                 end
-                
---                 if bcRailwaySubzone then
---                     bcRailwaySubzone.side = sender.side
---                     --env.info("Railway Coalition Sync: Updated BC " .. subzoneName .. " to side " .. sender.side)
---                 end
-                
---                 -- Provide feedback to players
---                 local coalitionText = sender.side == 1 and "RED" or "BLUE"
---                 trigger.action.outTextForCoalition(sender.side, 
---                     "Railway station " .. subzoneName .. " now under " .. coalitionText .. " control", 10)
-                
---                 -- Refresh supply arrows to reflect the change
---                 --env.info("Railway Coalition Sync: Refreshing supply arrows due to zone capture")
---                 --bc:drawSupplyArrows()
---             end, 'railwaySync_' .. subzoneName .. '_captured')
-            
---             -- Register lost trigger
---             parentZone:registerTrigger('lost', function(event, sender)
---                 --env.info("Railway Coalition Sync: Parent zone " .. parentZoneName .. " lost by side " .. sender.side)
---                 -- Note: The subzone will be updated when the new side captures the parent zone
---             end, 'railwaySync_' .. subzoneName .. '_lost')
-            
---             --env.info("Railway Coalition Sync: Registered triggers for " .. parentZoneName .. " -> " .. subzoneName)
---         end
---     end
-    
---     env.info("Railway Coalition Sync: All triggers registered")
--- end
 
 
 CapPlaneTemplate = CapPlaneTemplate or {
@@ -1302,12 +1066,12 @@ function SpawnFriendlyAssets()
 	end
 
 	if zones.Dover.active and zones.DunkirkPort.side == 0 then
-		trigger.action.outText("Our ships are standing to capture red carrier zone ", 15)
+		trigger.action.outText("Our ships are standing to capture Dunkirk Port", 15)
 		trigger.action.outSoundForCoalition(2, "admin.ogg")
 	end
 
 	if zones.Dover.active and zones.Calais.side == 0 then
-		trigger.action.outText("Our ships are standing to capture red carrier zone ", 15)
+		trigger.action.outText("Our ships are standing to capture Calais zone", 15)
 		trigger.action.outSoundForCoalition(2, "admin.ogg")
 	end
 
@@ -2005,7 +1769,7 @@ local smoketargets = function(tz)
 		env.info("smoketargets: no tz/built for zone "..tostring(tz and tz.zone or "nil"))
 		return
 	end
-	local units, statics, dangling = {}, {}, {}
+	local units, statics, dangling, toRemove = {}, {}, {}, {}
 	for i,v in pairs(tz.built) do
 		local g = Group.getByName(v)
 		if g and g:isExist() then
@@ -2015,17 +1779,19 @@ local smoketargets = function(tz)
 					table.insert(units, v2)
 				end
 			end
-		else
-			local st = StaticObject.getByName(v)
-			if st and st:isExist() then
-				table.insert(statics, st)
-			else
-				table.insert(dangling, tostring(v))
-			end
-		end
+        else
+            local st = StaticObject.getByName(v)
+            if st and st:isExist() then
+                table.insert(statics, st)
+            else
+                table.insert(dangling, tostring(v))
+                table.insert(toRemove, i)
+            end
+        end
 	end
 	if #dangling > 0 then
-		trigger.action.outTextForCoalition(2, "(BUG) "..tz.zone.." error has unresolved entries: "..table.concat(dangling,", ")..". Please report to Leka.", 30)
+		--trigger.action.outTextForCoalition(2, "(BUG) "..tz.zone.." error has unresolved entries: "..table.concat(dangling,", ")..". Please report to Leka.", 30)
+		for _,k in ipairs(toRemove) do tz.built[k] = nil end
 	end
 	local points = {}
 	for _,u in ipairs(units) do if u and u:isExist() then local p=u:getPosition().p; if p then table.insert(points,p) end end end
@@ -2336,7 +2102,8 @@ bc:registerShopItem('intel','Intel on enemy zone',150,function(sender)
 	local pickZone = function(targetZoneName)
 		if intelMenu then
 			local zoneObj = bc:getZoneByName(targetZoneName)
-			if not zoneObj or zoneObj.side ~= 1 then
+			if not zoneObj or zoneObj.side ~= 1 or not zoneObj.suspended then
+			--if not zoneObj or zoneObj.side ~= 1 then
 				return 'Must pick an enemy zone'
 			end
 			intelActiveZones[targetZoneName] = true
@@ -2344,12 +2111,10 @@ bc:registerShopItem('intel','Intel on enemy zone',150,function(sender)
 			trigger.action.outTextForCoalition(2, 'Intel available for '..targetZoneName..'. Check Zone status. Valid for 1 hour', 15)
 			timer.scheduleFunction(function(args)
 				local zName = args[1]
+				if intelActiveZones[zName] then intelActiveZones[zName] = false end
 				local zn = bc:getZoneByName(zName)
-				if not zn or zn.side ~= 1 or not zn.suspended then return end
-				if intelActiveZones[zName] then
-					intelActiveZones[zName] = false
-					trigger.action.outTextForCoalition(2, 'Intel on '..zName..' has expired.', 10)
-				end
+				if zn and zn.updateLabel then zn:updateLabel() end
+				trigger.action.outTextForCoalition(2, 'Intel on '..zName..' has expired.', 10)
 			end, {targetZoneName}, timer.getTime()+60*60)
 			intelMenu = nil
 		end
@@ -2358,15 +2123,15 @@ bc:registerShopItem('intel','Intel on enemy zone',150,function(sender)
 	trigger.action.outTextForCoalition(2, 'Intel purchase started. Select enemy zone from F10 menu.', 15)
 end,
 function(sender, params)
-	if params.zone and params.zone.side == 1 then
+	if params.zone and params.zone.side == 1 and not params.zone.suspended then
 		intelActiveZones[params.zone.zone] = true
 		startZoneIntel(params.zone.zone)
 		trigger.action.outTextForCoalition(2, 'Intel available for '..params.zone.zone..'. Check Zone status. Valid for 1 hour', 15)
 		SCHEDULER:New(nil,function(zName)
-			if intelActiveZones[zName] then
-				intelActiveZones[zName] = false
-				trigger.action.outTextForCoalition(2, 'Intel on '..zName..' has expired.', 10)
-			end
+			if intelActiveZones[zName] then intelActiveZones[zName] = false end
+			local zn = bc:getZoneByName(zName)
+			if zn and zn.updateLabel then zn:updateLabel() end
+			trigger.action.outTextForCoalition(2, 'Intel on '..zName..' has expired.', 10)
 		end,{params.zone.zone},3600)
 	else
 		return 'Must pick an enemy zone'
@@ -2725,7 +2490,8 @@ DynamicConvoy.InitTargetTails(5)
 DynamicConvoy.InitRoadPathCacheFromCommanders(GroupCommanders)
 PrecomputeLandingSpots()
 Frontline.ReindexZoneCalcs()
-local HuntNumber = SplashDamage and math.random(8,15) or math.random(6,15)
+bc:buildCapSpawnBuckets()
+local HuntNumber = SplashDamage and math.random(10,15) or math.random(8,15)
 bc:initHunter(HuntNumber)
 SCHEDULER:New(nil, function() bc:_buildHunterBaseList() end, {}, 1)
 
@@ -2739,7 +2505,7 @@ AWACS_CFG = {
 
 GlobalSettings.autoSuspendNmBlue = 1000   		-- suspend blue zones deeper than this nm
 GlobalSettings.autoSuspendNmRed = 1000   		-- suspend red zones deeper than this nm
-evc = EventCommander:new({ decissionFrequency=30*60, decissionVariance=30*60, skipChance = 15})
+evc = EventCommander:new({ decissionFrequency=15*60, decissionVariance=10*60, skipChance = 15})
 evc:init()
 mc = MissionCommander:new({side = 2, battleCommander = bc, checkFrequency = 60})
 ----------------------------------------------- Bomber Red event ---------------------------------------------
@@ -2912,15 +2678,15 @@ messageEnd=function()
     return "Mission ended: Bomber Strike" 
 end,
 startAction = function()
-         if not missionCompleted and trigger.misc.getUserFlag(180) == 0 then
-            trigger.action.outSoundForCoalition(2, "ding.ogg")
-        end
-    end,
-    endAction = function()
-         if not missionCompleted and trigger.misc.getUserFlag(180) == 0 then
-            trigger.action.outSoundForCoalition(2, "cancel.ogg")
-        end
-    end,
+		if not missionCompleted and trigger.misc.getUserFlag(180) == 0 then
+		trigger.action.outSoundForCoalition(2, "ding.ogg")
+	end
+end,
+endAction = function()
+		if not missionCompleted and trigger.misc.getUserFlag(180) == 0 then
+		trigger.action.outSoundForCoalition(2, "cancel.ogg")
+	end
+end,
 isActive = function()
 return bomberBlueActive
 end
@@ -3786,7 +3552,6 @@ mc:trackMission({
     end
 })
 
-
 captureTarget = nil
 mc:trackMission({
     title = function()
@@ -3834,8 +3599,8 @@ function generateCaptureMission()
     local validzones = {}
     for _, v in ipairs(bc.zones) do
 
-        if v.active and v.side == 0 and (not v.NeutralAtStart or v.firstCaptureByRed) and 
-           not string.find(v.zone, "Hidden") and (not v.zone:find("Red Carrier")) then
+        if v.active and v.side == 0 and (not v.NeutralAtStart or v.firstCaptureByRed) and
+           not v.ForceNeutral and not string.find(v.zone, "Hidden") and (not v.zone:find("AxeCarrierGroup")) then
             table.insert(validzones, v.zone)
         end
     end
@@ -3883,8 +3648,28 @@ mc:trackMission({
             local reward = capTargetPlanes * 100
             local pname  = capWinner
             bc.playerContributions[2][pname] = (bc.playerContributions[2][pname] or 0) + reward
-            bc:addTempStat(pname,'CAP mission',1)
-            trigger.action.outTextForCoalition(2,"["..pname.."] completed the CAP mission!\nReward pending: "..reward.." credits (land to redeem).",20)
+            local jp = bc.jointPairs and bc.jointPairs[pname]
+            if jp and bc:_jointPartnerAlive(pname) and bc:_jointPartnerAlive(jp) and bc.playerContributions[2][jp] ~= nil then
+                bc.playerContributions[2][jp] = (bc.playerContributions[2][jp] or 0) + reward
+                bc:addTempStat(jp,'CAP mission (Joint mission)',1)
+                bc:addTempStat(pname,'CAP mission (Joint mission)',1)
+                trigger.action.outTextForCoalition(2,"["..pname.."] and ["..jp.."] completed the CAP mission!\nReward pending: "..reward.." credits each (land to redeem).",20)
+                local jgn = bc.groupNameByPlayer[jp]
+                local jgr = Group.getByName(jgn)
+                if jgr then
+                    local ju = jgr:getUnit(1)
+                    if ju and not Utils.isInAir(ju) then
+                        SCHEDULER:New(nil,function()
+                            if ju and ju:isExist() then
+                                world.onEvent({id=world.event.S_EVENT_LAND,time=timer.getAbsTime(),initiator=ju,initiatorPilotName=jp,initiator_unit_type=ju:getTypeName(),initiator_coalition=ju:getCoalition(),skipRewardMsg=true})
+                            end
+                        end,{},5,0)
+                    end
+                end
+            else
+                bc:addTempStat(pname,'CAP mission',1)
+                trigger.action.outTextForCoalition(2,"["..pname.."] completed the CAP mission!\nReward pending: "..reward.." credits (land to redeem).",20)
+            end
             capMissionCooldownUntil = timer.getTime() + 900
         end
         capMissionTarget = nil
@@ -3900,6 +3685,8 @@ mc:trackMission({
         return true
     end
 })
+
+
 
 --                    End of CAP MISSION                           --
 ---------------------------------------------------------------------
@@ -3934,12 +3721,32 @@ mc:trackMission({
 	end,
     endAction = function()
         if casWinner then
-            local reward = casTargetKills*50
+            local reward = casTargetKills*30
             local pname  = casWinner
             bc.playerContributions[2][pname] = (bc.playerContributions[2][pname] or 0) + reward
-            bc:addTempStat(pname,'CAS mission',1)
-
-            trigger.action.outTextForCoalition(2,'['..pname..'] completed the CAS mission!\nReward pending: '..reward..' credits (land to redeem).',20)
+            local jp = bc.jointPairs and bc.jointPairs[pname]
+            if jp and bc:_jointPartnerAlive(pname) and bc:_jointPartnerAlive(jp) and bc.playerContributions[2][jp] ~= nil then
+                bc.playerContributions[2][jp] = (bc.playerContributions[2][jp] or 0) + reward
+            	bc:addTempStat(jp,'CAS mission (Joint mission)',1)
+				bc:addTempStat(pname,'CAS mission (Joint mission)',1)
+				trigger.action.outTextForCoalition(2,'['..pname..'] and ['..jp..'] completed the CAS mission!\nReward pending: '..reward..' credits each (land to redeem).',20)
+                local jgn = bc.groupNameByPlayer[jp]
+                local jgr = Group.getByName(jgn)
+                if jgr then
+                    local ju = jgr:getUnit(1)
+                    if ju and not Utils.isInAir(ju) then
+                        SCHEDULER:New(nil,function()
+                            if ju and ju:isExist() then
+                                world.onEvent({id=world.event.S_EVENT_LAND,time=timer.getAbsTime(),initiator=ju,initiatorPilotName=jp,initiator_unit_type=ju:getTypeName(),initiator_coalition=ju:getCoalition(),skipRewardMsg=true})
+                            end
+                        end,{},5,0)
+                    end
+                end
+			else
+            	bc:addTempStat(pname,'CAS mission',1)
+				trigger.action.outTextForCoalition(2,'['..pname..'] completed the CAS mission!\nReward pending: '..reward..' credits (land to redeem).',20)
+			end
+            
             casMissionCooldownUntil = timer.getTime()+900
         end
         casMissionTarget  = nil
@@ -4002,11 +3809,11 @@ function generateEscortMission(zoneName, groupName, groupID, group, mission)
 					local groupID = data.groupID
 					local group = data.group
 					trigger.action.outSoundForGroup(groupID, "cancel.ogg")
-					trigger.action.outTextForGroup(groupID, "Mission failed:\n\nConvoy was destroyed\n\nRestart the mission from the radio menu", 30)
+					trigger.action.outTextForGroup(groupID, "Mission failed:\n\nConvoy was destroyed\n\nStandby, looking for a new group...", 30)
 					removeMissionMenuForAll(mission.zone, groupID)
 					if trackedGroups[groupName] then
 						trackedGroups[groupName] = nil
-						handleMission(zoneName, groupName, groupID, group)
+						--handleMission(zoneName, groupName, groupID, group)
 					end
 				end
 			else
@@ -4103,7 +3910,10 @@ function generateEscortMission(zoneName, groupName, groupID, group, mission)
 		end,
         isActive = function()
             local targetZone = bc:getZoneByName(mission.TargetZone)
-			return targetZone.side == 1
+            if targetZone.side ~= 2 and targetZone.active and not targetZone.suspended then
+                return true
+            end
+            return false
         end,
         returnAccepted = function(self)
             if not self.accept then return false end
@@ -4112,6 +3922,7 @@ function generateEscortMission(zoneName, groupName, groupID, group, mission)
     })
 
     mc.missionFlags[zoneName] = true
+	mc.escortMissionGenerated = true
 end
 
 ---------------------------------------------------------------------
@@ -4142,7 +3953,14 @@ mc:trackMission({
 		trigger.action.outSoundForCoalition(2,'cancel.ogg')
 		if runwayTargetZone then
 			if runwayCompleted then
-				return 'Mission ended: Bomb runway at '..runwayTargetZone..' completed'..(bomberName and (' by '..bomberName..'\ncredit 100 - land to redeem') or '')
+				local cred = (need and need>1) and 200 or 100
+				if bomberName and runwayPartnerName then
+					return 'Mission ended: Bomb runway at '..runwayTargetZone..' completed by '..bomberName..' and '..runwayPartnerName..'\ncredit '..cred..' each - land to redeem'
+				elseif bomberName then
+					return 'Mission ended: Bomb runway at '..runwayTargetZone..' completed by '..bomberName..'\ncredit '..cred..' - land to redeem'
+				else
+					return 'Mission ended: Bomb runway at '..runwayTargetZone..' completed'
+				end
 			else
 				return 'Mission ended: Bomb runway at '..runwayTargetZone..' canceled'
 			end
@@ -4252,7 +4070,6 @@ timer.scheduleFunction(function(_, time)
 		return time+120
 	end
 end, {}, timer.getTime() + 35)
-
 timer.scheduleFunction(function(_, time)
 	if checkAndGenerateCASMission() then
 		return time+300
