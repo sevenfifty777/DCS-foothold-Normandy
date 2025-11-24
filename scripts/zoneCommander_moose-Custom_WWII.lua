@@ -3702,14 +3702,14 @@ dc.ANTI_SHIP_AIRFIELDS = {
     [1] = { -- German/Axis airfields
         "Carpiquet",
         "Maupertus", 
-        "Fecamp",
-        "Abbeville"
+        "Fecamp-Benouville",
+        "Abbeville Drucat"
     },
     [2] = { -- UK/Allied airfields  
-        "BigginHill",
+        "Biggin Hill",
         "Manston",
         "Farnborough",
-        "Dover"
+        "Hawkinge"
     }
 }
 
@@ -3821,9 +3821,9 @@ function dc.ExecuteAntiShipCounterMission(missionName, originAirfield, enemySide
         local spawner = SPAWN:New(antiShipTemplate)
         
         if spawner then
-            -- Spawn at the origin airfield
-            local spawnedGroup = spawner:SpawnAtAirbase(AIRBASE:FindByName(originZone.airbaseName or originAirfield), SPAWN.Takeoff.Hot)
-            
+			-- Spawn at the origin airfield
+			local spawnedGroup = spawner:SpawnAtAirbase(AIRBASE:FindByName(originZone.airbaseName or originAirfield), SPAWN.Takeoff.Hot)
+                        
             if spawnedGroup then
                 env.info(string.format("[BATTLESHIP_COUNTER] ✓ Spawned anti-ship group %s from %s", 
                     spawnedGroup:GetName(), originAirfield))
