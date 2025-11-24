@@ -13356,7 +13356,7 @@ end
 								if missionAssigned then
 									-- Set naval group options for combat
 									navyGroup:SetDetection()
-									navyGroup:SetEngageRange(25000) -- 25km engagement range
+									navyGroup:SetEngageDetectedOn() -- 25km engagement range
 									env.info(string.format("[BATTLESHIP] %s: Naval combat missions assigned successfully", self.name))
 								else
 									env.info(string.format("[BATTLESHIP] %s: No enemy ships found in target zone %s", 
