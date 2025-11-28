@@ -540,7 +540,7 @@ do
 		}
 
 		local spawn = SPAWN:NewFromTemplate(tpl, grname, alias, true):InitSkill("Excellent")
-		if (not grname:find("Red SAM") or grname:find("Dog Ear")) and not grname:find("bluePD") and not grname:find("blueHAWK") and not grname:find("bluePATRIOT") then
+		if (not grname:find("Red SAM") or grname:find("Dog Ear")) and not grname:find("EWR") and not grname:find("Pointe") and not grname:find("V1 Launch Site") then
 		spawn = isCarrierZone and spawn:InitRandomizeUnits(true, 1500, 1000) or spawn:InitRandomizeUnits(true, 100, 30):InitHeading(1, 359)
 		end
 		if grname:find("Red SAM") or grname:find("Dog Ear") or grname:find("blueHAWK") or grname:find("bluePD") or grname:find("bluePATRIOT") then
@@ -1961,8 +1961,8 @@ do
 	GlobalSettings.frontlineDistanceLimitBlue = 30
 	GlobalSettings.frontlineDistanceLimitRed  = 60
 	GlobalSettings.proximityWakeNm = 30    			-- wake up zones within this nm of front
-	GlobalSettings.autoSuspendNmBlue = 1000   		-- suspend blue zones deeper than this nm
-	GlobalSettings.autoSuspendNmRed = 1000   		-- suspend red zones deeper than this nm
+	GlobalSettings.autoSuspendNmBlue = 60   		-- suspend blue zones deeper than this nm
+	GlobalSettings.autoSuspendNmRed = 80   		-- suspend red zones deeper than this nm
 	GlobalSettings.blockedDespawnTime = 10*60 		-- used to despawn aircraft that are stuck taxiing for some reason
 	GlobalSettings.landedDespawnTime = 1*60
 	GlobalSettings.initialDelayVariance = 20 		-- minutes

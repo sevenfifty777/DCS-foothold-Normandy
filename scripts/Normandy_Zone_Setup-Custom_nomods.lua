@@ -2503,8 +2503,8 @@ AWACS_CFG = {
     [2] = { alt=30000, speed=350, hdg=270, leg=15, sep=75 }   -- blue
 }
 
-GlobalSettings.autoSuspendNmBlue = 1000   		-- suspend blue zones deeper than this nm
-GlobalSettings.autoSuspendNmRed = 1000   		-- suspend red zones deeper than this nm
+GlobalSettings.autoSuspendNmBlue = 60   		-- suspend blue zones deeper than this nm
+GlobalSettings.autoSuspendNmRed = 80   		-- suspend red zones deeper than this nm
 evc = EventCommander:new({ decissionFrequency=15*60, decissionVariance=10*60, skipChance = 15})
 evc:init()
 mc = MissionCommander:new({side = 2, battleCommander = bc, checkFrequency = 60})
