@@ -1681,5 +1681,5 @@ end
 ----------------------- EVENTS -------------------------------------------------------------
 
 world.addEventHandler(evento)
-trigger.action.outText("zeus V2.0 optimized - Script LOADED!", 10)
-env.info("zeus V2.0 optimized - Script LOADED!", 10)
+trigger.action.outText("zeus V2.1 optimized - Script LOADED!", 10)
+env.info("zeus V2.1 optimized - Script LOADED!", 10)
