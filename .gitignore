@@ -39,7 +39,8 @@ missioninfo.txt
 banlist.txt
 friendlyfire.txt
 player_log.csv
-
+copilot-instructions.md
+code_samples.md
 # Ignore virtual environment
 venv/
 

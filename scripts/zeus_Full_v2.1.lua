@@ -37,6 +37,11 @@ local excludedTextPatterns = {
     "addshop:",
     "removeshop:",
     "-code:",
+    "SA-8","SA-9","SA-13","SA-15","SA-19","Soldier","Truck","Shilka","Igla","Igla-S",
+    "RPG","BMP2","Tank","BTR80",
+    "JTAC9lineam","JTAC9linefm","Tankm1","CTLD_CARGO_L118","CTLD_CARGO_Scout","CTLD_CARGO_AmmoTruck", "CTLD_CARGO_GMLRS_HE",
+    "C130_Cargo_HMMWV","C130_Cargo_MRAP",
+    "-create","-destroy1","-destroy2","-destroy3","-destroy4","-static","-debug","-explode","-smoke"
     -- Add more patterns here as needed
     -- "debugmode",
     -- "testcommand",
