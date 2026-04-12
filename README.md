@@ -53,7 +53,7 @@ Detailed guides and information:
 
 ## 🎮 Mission Files
 
-- **Mission File (Latest)**: [`missions`](missions/) - **Latest with Naval Warfare Update** - **Mods and No mods required** (V1 rocket launchers will not function)
+- **Mission File (Latest)**: [GitHub Releases](https://github.com/sevenfifty777/DCS-foothold-Normandy/releases/latest) - **Latest with Naval Warfare Update** - **Mods and No mods required** (V1 rocket launchers will not function)
 - **Theater**: Normandy 1944 Map (required)
 - **Era**: World War II
 - **Players**: 2-32 recommended
@@ -97,7 +97,7 @@ Custom German WWII liveries for period-accurate aircraft appearance.
 The mission uses several custom Lua scripts for dynamic gameplay:
 
 ### Core Scripts
-- **[Foothold Config](scripts/Foothold Config.lua)** - Main framework for mission logic
+- **[Foothold Config](scripts/Foothold%20Config.lua)** - Main framework for mission logic
 - **[Zone Commander](scripts/zoneCommander_moose-Custom_WWII.lua)** - Territory control and zone management
 - **[Normandy Zone Setup](scripts/Normandy_Zone_Setup-Custom.lua)** - Zone definitions and configuration
 
