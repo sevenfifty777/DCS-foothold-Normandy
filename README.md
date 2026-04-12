@@ -97,7 +97,7 @@ Custom German WWII liveries for period-accurate aircraft appearance.
 The mission uses several custom Lua scripts for dynamic gameplay:
 
 ### Core Scripts
-- **[Foothold Config](scripts/Foothold_Config.lua)** - Main framework for mission logic
+- **[Foothold Config](scripts/Foothold Config.lua)** - Main framework for mission logic
 - **[Zone Commander](scripts/zoneCommander_moose-Custom_WWII.lua)** - Territory control and zone management
 - **[Normandy Zone Setup](scripts/Normandy_Zone_Setup-Custom.lua)** - Zone definitions and configuration
 
