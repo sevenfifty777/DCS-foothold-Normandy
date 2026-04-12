@@ -1,5 +1,3 @@
-BASE:I("Loading Leka's special all in one script handler")
-
 -- This script handles statics, Welcome messages, Callsign assigement, Escort, Missle tracking, Radio menu for ATIS and getting closest Airbase.
 
 -- This script needs cuople of things, Static unit called EventMan and the carrier named CVN-72 or change those names bellow,
@@ -7,55 +5,136 @@ BASE:I("Loading Leka's special all in one script handler")
 
 static = STATIC:FindByName("EventMan", true)
 
+atisZones = {}
 
-local atisZones = {
-    ["BigginHill"] = {airbaseName = AIRBASE.Normandy.Biggin_Hill},
-    ["Odiham"] = {airbaseName = AIRBASE.Normandy.Odiham},
-    ["Farnborough"] = {airbaseName = AIRBASE.Normandy.Farnborough},
-    ["Manston"] = {airbaseName = AIRBASE.Normandy.Manston},
-    ["Hawkinge"] = {airbaseName = AIRBASE.Normandy.Hawkinge},
-    ["Lympne"] = {airbaseName = AIRBASE.Normandy.Lympne},
-    ["Chailey"] = {airbaseName = AIRBASE.Normandy.Chailey},
-    ["Ford"] = {airbaseName = AIRBASE.Normandy.Ford},
-    ["Tangmere"] = {airbaseName = AIRBASE.Normandy.Tangmere},
-    ["Funtington"] = {airbaseName = AIRBASE.Normandy.Funtington},
-    ["Needs Oar Point"] = {airbaseName = AIRBASE.Normandy.Needs_Oar_Point},
-    ["Friston"] = {airbaseName = AIRBASE.Normandy.Friston},
-    ["Dunkirk"] = {airbaseName = AIRBASE.Normandy.Dunkirk_Mardyck},
-    ["Saint-Omer"] = {airbaseName = AIRBASE.Normandy.Saint_Omer_Wizernes},
-    ["Merville"] = {airbaseName = AIRBASE.Normandy.Merville_Calonne},
-    ["Abbeville"] = {airbaseName = AIRBASE.Normandy.Abbeville_Drucat},
-    ["Amiens"] = {airbaseName = AIRBASE.Normandy.Amiens_Glisy},
-    ["Saint-Aubain"] = {airbaseName = AIRBASE.Normandy.Saint_Aubin},
-    ["Fecamp"] = {airbaseName = AIRBASE.Normandy.Fecamp_Benouville},
-    ["Rouen"] = {airbaseName = AIRBASE.Normandy.Rouen_Boos},
-    ["Carpiquet"] = {airbaseName = AIRBASE.Normandy.Carpiquet},
-    ["Sainte-Croix"] = {airbaseName = AIRBASE.Normandy.Sainte_Croix_sur_Mer},
-    ["Saint-Pierre"] = {airbaseName = AIRBASE.Normandy.Saint_Pierre_du_Mont},
-    ["Longues-Sur-Mer"] = {airbaseName = AIRBASE.Normandy.Longues_sur_Mer},
-    ["Cricqueville"] = {airbaseName = AIRBASE.Normandy.Cricqueville_en_Bessin},
-    ["Le Molay"] = {airbaseName = AIRBASE.Normandy.Le_Molay},
-    ["Brucheville"] = {airbaseName = AIRBASE.Normandy.Brucheville},
-    ["Maupertus"] = {airbaseName = AIRBASE.Normandy.Maupertus},
-    ["Bernay"] = {airbaseName = AIRBASE.Normandy.Bernay_Saint_Martin},
-    ["Saint-Andre"] = {airbaseName = AIRBASE.Normandy.Saint_Andre_de_lEure},
-    ["Orly"] = {airbaseName = AIRBASE.Normandy.Orly},
-}
-local atisZoneNames = {
+allZones = {}
+local allZoneSet = {}
+local allZoneObjects = {}
+local atisAirbaseObjects = {}
+local atisZoneByAirbaseName = {}
 
-}
--- Define all zones
-allZones = {
-    "CarrierGroup", "AxeCarrierGroup", "BigginHill", "Odiham", "Farnborough", "Manston", "Hawkinge", "Lympne", "Chailey", "Ford", "Tangmere", "Funtington",
-    "Needs Oar Point", "Friston", "Dunkirk", "Dunkirk-Port", "Saint-Omer", "Merville", "Abbeville", "Amiens", "Cherbourg", "Calais", "Saint-Aubain",
-    "Fecamp", "Le Havre", "Rouen", "Carpiquet", "Caen", "Sainte-Croix", "Saint-Pierre", "Longues-Sur-Mer", "Cricqueville", "Le Molay", "Brucheville",
-    "Valognes", "Maupertus", "Bernay", "Saint-Andre", "Paris", "Orly", "London", "Le Touquet", "Pointe des Groins", "Pointe du Hoc", "Cap Gris-Nez", "Dover"
-}
+local function GetAirbaseByNameCached(airbaseName)
+    if type(airbaseName) ~= "string" or airbaseName == "" then
+        return nil
+    end
+    local cached = atisAirbaseObjects[airbaseName]
+    if cached then
+        return cached
+    end
+    local airbase = AIRBASE:FindByName(airbaseName)
+    if airbase then
+        atisAirbaseObjects[airbaseName] = airbase
+    end
+    return airbase
+end
+
+local function BuildAllZonesFromFootholdZones()
+    local built = {}
+    local seen = {}
+    if type(zones) ~= "table" then
+        return built
+    end
+
+    for _, zone in pairs(zones) do
+        -- Include player/spawn bases: either explicitly flagged (GCW-style) or
+        -- any zone that has an airbaseName assigned (WWII-style).
+        if zone and (zone.isHeloSpawn == true or zone.airbaseName ~= nil) then
+            local zoneName = zone.zone
+            if type(zoneName) == "string" and zoneName ~= "" and not seen[zoneName] then
+                table.insert(built, zoneName)
+                seen[zoneName] = true
+            end
+        end
+    end
+    return built
+end
+
+local function InitAllZones()
+    allZones = BuildAllZonesFromFootholdZones()
+    allZoneSet = {}
+    allZoneObjects = {}
+    for _, zoneName in ipairs(allZones) do
+        allZoneSet[zoneName] = true
+        allZoneObjects[zoneName] = ZONE:New(zoneName)
+    end
+end
+
+function RegisterWelcomeZone(zoneName)
+    if type(zoneName) ~= "string" or zoneName == "" then
+        return false
+    end
+
+    if not allZoneSet[zoneName] then
+        table.insert(allZones, zoneName)
+        allZoneSet[zoneName] = true
+    end
+
+    if not allZoneObjects[zoneName] then
+        allZoneObjects[zoneName] = ZONE:New(zoneName)
+    end
+
+    return allZoneObjects[zoneName] ~= nil
+end
 
 
+local function BuildAtisZonesFromFootholdZones()
+    local built = {}
+    local builtCount = 0
+    atisZoneByAirbaseName = {}
+    if type(zones) ~= "table" then
+        return built
+    end
 
-airbaseStatics = {
-}
+    for _, zone in pairs(zones) do
+        local zoneName = zone and zone.zone
+        local airbaseName = zone and zone.airbaseName
+        if type(zoneName) == "string" and zoneName ~= "" and type(airbaseName) == "string" and airbaseName ~= "" then
+            local airbase = GetAirbaseByNameCached(airbaseName)
+            if airbase and airbase:IsAirdrome() then
+                built[zoneName] = { airbaseName = airbaseName }
+                atisZoneByAirbaseName[airbaseName] = zoneName
+                builtCount = builtCount + 1
+            end
+        end
+    end
+    return built
+end
+
+local function InitAtisZones()
+    atisZones = BuildAtisZonesFromFootholdZones()
+end
+
+local function zoneNameContainsToken(zoneName, token)
+    if not token or token == "" then return false end
+    local zoneText = tostring(zoneName or "")
+    if zoneText == "" then return false end
+    local tokenText = tostring(token)
+    if string.find(zoneText, tokenText, 1, true) then return true end
+    return string.find(string.lower(zoneText), string.lower(tokenText), 1, true) ~= nil
+end
+
+local function isCarrierZoneName(zoneName)
+    if zoneNameContainsToken(zoneName, "carrier") then return true end
+    local extraCarrierZoneNames = GlobalSettings.carrierZoneNames or CarrierZoneNames
+    if type(extraCarrierZoneNames) == "table" then
+        for _, token in ipairs(extraCarrierZoneNames) do
+            if zoneNameContainsToken(zoneName, token) then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+-- Build once at script load (this file is executed after Foothold `zones` is created).
+InitAllZones()
+InitAtisZones()
+
+if EscortTakeoffFromGround == nil then
+    EscortTakeoffFromGround = false
+end
+
+
 
 followID={}
 staticDetails = {}
@@ -86,7 +165,6 @@ function GatherStaticDetails()
                     heading = heading,
                 }
             else
-                env.info("Static not found or not alive: " .. staticName)
             end
         end
     end
@@ -108,6 +186,7 @@ function RespawnStaticsForAirbase(airbaseName, coalitionSide)
     else
         return
     end
+
     for _, staticName in ipairs(statics) do
         local static = STATIC:FindByName(staticName, false)
         if static and static:IsAlive() then
@@ -139,13 +218,6 @@ local playerZoneVisits = {}
 local globalCallsignAssignments = {}
 
 function logZoneAssignments()
-    BASE:I("Zone Assignments:")
-    for zone, assignments in pairs(zoneAssignments) do
-        BASE:I("Zone: " .. zone)
-        for fullCallsign, assignedPlayer in pairs(assignments) do
-            BASE:I("    Callsign: " .. fullCallsign .. " -> Player: " .. assignedPlayer)
-        end
-    end
 end
 local function isCallsignUsedInOtherZones(fullCallsign, currentZone)
     for zone, assignments in pairs(zoneAssignments) do
@@ -163,11 +235,20 @@ end
 function getPlayerAssignment(playerName)
     if globalCallsignAssignments[playerName] then
         local callsignInfo = globalCallsignAssignments[playerName]
-        BASE:I(string.format("Player '%s' has callsign '%s' in zone '%s'", playerName, callsignInfo.callsign, callsignInfo.zoneName))
         return callsignInfo.callsign, callsignInfo.zoneName
     end
-    BASE:I(string.format("Player '%s' has no callsign assignment.", playerName))
     return nil, nil
+end
+
+function getPlayerDisplayName(playerName)
+    if not playerName then
+        return playerName
+    end
+    local callsign = select(1, getPlayerAssignment(playerName))
+    if callsign and callsign ~= "" then
+        return callsign
+    end
+    return playerName
 end
 
 function findOrAssignSlot(playerName, groupName, zoneName)
@@ -181,7 +262,6 @@ function findOrAssignSlot(playerName, groupName, zoneName)
                             local number = tonumber(string.sub(existingCallsign, -1))
                             if number then
                                 local IFF = details.IFFs[number]
-                                BASE:I(string.format("Reusing existing callsign %s for player %s in zone %s", existingCallsign, playerName, zoneName))
                                 return existingCallsign, IFF
                             end
                         end
@@ -191,8 +271,7 @@ function findOrAssignSlot(playerName, groupName, zoneName)
         else
             releaseSlot(playerName, assignedZone)
             globalCallsignAssignments[playerName] = nil
-            BASE:I("Removed old callsign " .. existingCallsign .. " for player: " .. playerName)
-        end
+            end
     end
 
     zoneAssignments[zoneName] = zoneAssignments[zoneName] or {}
@@ -215,7 +294,6 @@ function findOrAssignSlot(playerName, groupName, zoneName)
         local IFF = aircraftAssignments[prefix][baseCallsign].IFFs[(maxNumber % #aircraftAssignments[prefix][baseCallsign].IFFs) + 1]
         zoneAssignments[zoneName][newCallsign] = playerName
         globalCallsignAssignments[playerName] = {callsign = newCallsign, zoneName = zoneName, groupName = groupName}
-        BASE:I(string.format("Assigned %s to player %s in zone %s", newCallsign, playerName, zoneName))
         logZoneAssignments()
         return newCallsign, IFF
     end
@@ -254,7 +332,6 @@ function findOrAssignSlot(playerName, groupName, zoneName)
             if not zoneAssignments[zoneName][fullCallsign] then
                 zoneAssignments[zoneName][fullCallsign] = playerName
                 globalCallsignAssignments[playerName] = {callsign = fullCallsign, zoneName = zoneName, groupName=groupName}
-                BASE:I(string.format("Assigned %s to player %s in zone %s", fullCallsign, playerName, zoneName))
                 logZoneAssignments()
                 return fullCallsign, IFF
             end
@@ -267,7 +344,6 @@ function findOrAssignSlot(playerName, groupName, zoneName)
             if not isCallsignUsedInOtherZones(fullCallsign, zoneName) and not zoneAssignments[zoneName][fullCallsign] then
                 zoneAssignments[zoneName][fullCallsign] = playerName
                 globalCallsignAssignments[playerName] = {callsign = fullCallsign, zoneName = zoneName, groupName=groupName}
-                BASE:I(string.format("Assigned %s to player %s in zone %s (cycled back, first available)", fullCallsign, playerName, zoneName))
                 logZoneAssignments()
                 return fullCallsign, IFF
             end
@@ -280,7 +356,6 @@ function findOrAssignSlot(playerName, groupName, zoneName)
             if not zoneAssignments[zoneName][fullCallsign] then
                 zoneAssignments[zoneName][fullCallsign] = playerName
                 globalCallsignAssignments[playerName] = {callsign = fullCallsign, zoneName = zoneName,groupName=groupName}
-                BASE:I(string.format("Assigned %s to player %s in zone %s (cycled back, fallback)", fullCallsign, playerName, zoneName))
                 logZoneAssignments()
                 return fullCallsign, IFF
             end
@@ -290,87 +365,348 @@ function findOrAssignSlot(playerName, groupName, zoneName)
     return nil, nil
 end
 
+local defaultPreferredOrder = {
+    ["F.A.18"] = {"Arctic1","Bender2","Crimson3","Dusty4","Lion3"},
+    ["F.16CM"] = {"Indy9","Jester1","Venom4"},
+    ["A.10C"] = {"Hawg8","Tusk2","Pig7"},
+    ["AH.64D"] = {"Rage9","Salty1"},
+    ["AJS37"] = {"Fenris6","Grim7"},
+    ["UH.1H"] = {"Nitro5"},
+    ["CH.47F"] = {"Greyhound3"},
+    ["F.15E.S4"] = {"Hitman3"},
+    ["F.14B"] = {"Elvis5","Mustang4"},
+    [".OH.58D"] = {"Blackjack4"},
+    ["Ka.50.III"] = {"Orca6"},
+    ["AV.8B"] = {"Quarterback1"},
+    ["M.2000"] = {"Quebec8"},
+    ["F.4E.45MC"] = {"Savage1","Scary2"},
+    ["MiG.29A.Fulcrum"] = {"Wedge7"},
+    ["Mi.24P"] = {"Scorpion3"},
+    ["C.130J.30"] = {"Mighty1"},
+    ["F4U.1D"] = {"BlackSheep1"},
+    ["Spitfire.LF.Mk"] = {"Circus1"},
+    ["Mosquito.FB.Mk"] = {"Beer1"},
+    ["P.47D"] = {"Detroit1"},
+    ["P.51D"] = {"Mickey1"},
+    ["Bf.109.K"] = {"Schwarz1"},
+    ["FW.190A.8"] = {"Panther1"},
+    ["FW.190D.9"] = {"Angriff1"},
+    ["I.16"] = {"Berkut1"},
+    ["Yak.52"] = {"Medved1"},
+    ["La.7"] = {"Volk1"},
+}
+
+local function splitCallsignParts(callsign)
+    local stem, numberPart = string.match(callsign, "^(.-)(%d+)$")
+    if stem then
+        return stem, tonumber(numberPart)
+    end
+    return callsign, nil
+end
+
+local function pickReplacementCallsign(baseCallsign, remainingAssignments)
+    local baseStem, baseNumber = splitCallsignParts(baseCallsign)
+    local selectedCallsign = nil
+    local selectedDistance = nil
+
+    for callsign in pairs(remainingAssignments) do
+        local stem, number = splitCallsignParts(callsign)
+        if stem == baseStem then
+            local distance = math.abs((number or 0) - (baseNumber or 0))
+            if (not selectedCallsign)
+                or (distance < selectedDistance)
+                or (distance == selectedDistance and callsign < selectedCallsign) then
+                selectedCallsign = callsign
+                selectedDistance = distance
+            end
+        end
+    end
+
+    return selectedCallsign
+end
+
+local function resolvePreferredOrder(prefix, typeAssignments)
+    local preferredOrder = {}
+    local remainingAssignments = {}
+    local baseOrder = defaultPreferredOrder[prefix] or {}
+
+    for callsign in pairs(typeAssignments) do
+        remainingAssignments[callsign] = true
+    end
+
+    for _, baseCallsign in ipairs(baseOrder) do
+        local selectedCallsign = nil
+        if remainingAssignments[baseCallsign] then
+            selectedCallsign = baseCallsign
+        else
+            selectedCallsign = pickReplacementCallsign(baseCallsign, remainingAssignments)
+        end
+
+        if selectedCallsign then
+            preferredOrder[#preferredOrder + 1] = selectedCallsign
+            remainingAssignments[selectedCallsign] = nil
+        end
+    end
+
+    local extras = {}
+    for callsign in pairs(remainingAssignments) do
+        extras[#extras + 1] = callsign
+    end
+    table.sort(extras)
+
+    for _, callsign in ipairs(extras) do
+        preferredOrder[#preferredOrder + 1] = callsign
+    end
+
+    return preferredOrder
+end
+
+local function applyCallsignOverrides()
+    if type(CallsignOverrides) ~= "table" then
+        return
+    end
+
+    for prefix, configuredAssignments in pairs(CallsignOverrides) do
+        if type(configuredAssignments) == "table" then
+            local rebuiltAssignments = {}
+            for callsign, configuredIFFs in pairs(configuredAssignments) do
+                rebuiltAssignments[callsign] = {
+                    IFFs = configuredIFFs,
+                    assignments = {}
+                }
+            end
+            aircraftAssignments[prefix] = rebuiltAssignments
+        end
+    end
+end
+
 function getPreferredOrder(groupName)
     for prefix, typeAssignments in pairs(aircraftAssignments) do
         if string.find(groupName, prefix) then
-            local order
-            if prefix == "F.4.UD"                   then preferredOrder = {"BlackSheep1"}
-            elseif prefix == "Spitfire.LF.MkIX"     then preferredOrder = {"Circus1"}
-            elseif prefix == "Mosquito.FB.MkVI"     then preferredOrder = {"Beer1"}
-            elseif prefix == "P.47D"                then preferredOrder = {"Detroit1"}
-            elseif prefix == "P.51D"                then preferredOrder = {"Mickey1"}
-            elseif prefix == "Bf.109K"              then preferredOrder = {"Schwarz1"}
-            elseif prefix == "FW.190.A8"            then preferredOrder = {"Panther1"}
-            elseif prefix == "FW.190.D9"            then preferredOrder = {"Angriff1"}
-            elseif prefix == "I.16"                 then preferredOrder = {"Berkut1"}
-            elseif prefix == "Yak.52"               then preferredOrder = {"Medved1"}
-            end
-            return prefix, preferredOrder
+            return prefix, resolvePreferredOrder(prefix, typeAssignments)
         end
     end
 end
 aircraftAssignments = {
-    ["F.4.UD"] = {
-        ["BlackSheep1"] = {
+    ["F.A.18"] = {
+        ["Arctic1"] = {
             IFFs = {1400, 1401, 1402, 1403},
             assignments = {}
         },
-    },
-    ["Spitfire.LF.MkIX"] = {
-        ["Circus1"] = {
-            IFFs = {1510, 1511, 1512, 1513},
+        ["Bender2"] = {
+            IFFs = {1404, 1405, 1406, 1407},
+            assignments = {}
+        },
+        ["Crimson3"] = {
+            IFFs = {1410, 1411, 1412, 1413},
+            assignments = {}
+        },
+        ["Dusty4"] = {
+            IFFs = {1300, 1301, 1302, 1303},
+            assignments = {}
+        },
+        ["Lion3"] = {
+            IFFs = {1310, 1311, 1312, 1313},
             assignments = {}
         },
     },
-    ["Mosquito.FB.MkVI"] = {
-        ["Beer1"] = {
+    ["F.16CM"] = {
+        ["Jester1"] = {
+            IFFs = {1510, 1511, 1512, 1513},
+            assignments = {}
+        },
+        ["Indy9"] = {
+            IFFs = {1500, 1501, 1502, 1503},
+            assignments = {}
+        },
+        ["Venom4"] = {
+            IFFs = {1610, 1611, 1612, 1613},
+            assignments = {}
+        },
+    },
+    ["A.10C"] = {
+        ["Hawg8"] = {
             IFFs = {1330, 1331, 1332, 1333},
+            assignments = {}
+        },
+        ["Tusk2"] = {
+            IFFs = {1350, 1351, 1352, 1353},
+            assignments = {}
+        },
+        ["Pig7"] = {
+            IFFs = {1340, 1341, 1342, 1343},
+            assignments = {}
+        },
+    },
+    ["AH.64D"] = {
+        ["Rage9"] = {
+            IFFs = {1610, 1611, 1612, 1613},
+            assignments = {}
+        },
+        ["Salty1"] = {
+            IFFs = {1620, 1621, 1622, 1623},
+            assignments = {}
+        },
+    },
+    ["Ka.50.III"] = {
+        ["Orca6"] = {
+            IFFs = {1560, 1561, 1562, 1563},
+            assignments = {}
+        },
+    },
+    ["AJS37"] = {
+        ["Fenris6"] = {
+            IFFs = {1060, 1061, 1062, 1063},
+            assignments = {}
+        },
+        ["Grim7"] = {
+            IFFs = {1070, 1071, 1072, 1073},
+            assignments = {}
+        },
+    },
+    ["UH.1H"] = {
+        ["Nitro5"] = {
+            IFFs = {1050, 1051, 1052, 1053},
+            assignments = {}
+        },
+    },
+    ["CH.47F"] = { 
+        ["Greyhound3"] = { 
+            IFFs = {1370, 1371, 1372, 1373}, 
+            assignments = {}
+        },
+    },
+    ["F.15E.S4"] = { 
+        ["Hitman3"] = { 
+            IFFs = {1360, 1361, 1362, 1363}, 
+            assignments = {}
+        },
+    },
+    ["AV.8B"] = {
+        ["Quarterback1"] = {
+            IFFs = {1434, 1435, 1436, 1437},
+            assignments = {}
+        },
+    },
+    ["M.2000"] = {
+        ["Quebec8"] = {
+            IFFs = {1600, 1601, 1602, 1603},
+            assignments = {}
+        },
+    },
+	[".OH.58D"] = { 
+        ["Blackjack4"] = { 
+            IFFs = {1440, 1441, 1442, 1443}, 
+            assignments = {}
+        },
+    },
+    ["F.14B"] = { 
+        ["Elvis5"] = { 
+            IFFs = {1100, 1101, 1102, 1103}, 
+            assignments = {}
+        },
+        ["Mustang4"] = { 
+            IFFs = {1104, 1105, 1106, 1107}, 
+            assignments = {}
+        },
+    },
+    ["F.4E.45MC"] = { 
+        ["Savage1"] = { 
+            IFFs = {0120, 0121, 0122, 0123}, 
+            assignments = {}
+        },
+        ["Scary2"] = { 
+            IFFs = {0130, 0131, 0132, 0133}, 
+            assignments = {}
+        },
+    },
+    ["MiG.29A.Fulcrum"] = { 
+        ["Wedge7"] = { 
+            IFFs = {0524, 0525, 0526, 0527}, 
+            assignments = {}
+        },
+    },
+    ["Mi.24P"] = { 
+        ["Scorpion3"] = { 
+            IFFs = {0610, 0611, 0612, 0613}, 
+            assignments = {}
+        },
+    },
+    ["C.130J.30"] = { 
+        ["Mighty1"] = { 
+            IFFs = {1160, 1161, 1162, 1163}, 
+            assignments = {}
+        },
+    },
+    ["F4U.1D"] = {
+        ["BlackSheep1"] = {
+            IFFs = {0, 0, 0, 0},
+            assignments = {}
+        },
+    },
+    ["Spitfire.LF.Mk"] = {
+        ["Circus1"] = {
+            IFFs = {0, 0, 0, 0},
+            assignments = {}
+        },
+    },
+    ["Mosquito.FB.Mk"] = {
+        ["Beer1"] = {
+            IFFs = {0, 0, 0, 0},
             assignments = {}
         },
     },
     ["P.47D"] = {
         ["Detroit1"] = {
-            IFFs = {1610, 1611, 1612, 1613},
+            IFFs = {0, 0, 0, 0},
             assignments = {}
         },
     },
     ["P.51D"] = {
         ["Mickey1"] = {
-            IFFs = {1560, 1561, 1562, 1563},
+            IFFs = {0, 0, 0, 0},
             assignments = {}
         },
     },
-    ["Bf.109K"] = {
+    ["Bf.109.K"] = {
         ["Schwarz1"] = {
-            IFFs = {1060, 1061, 1062, 1063},
+            IFFs = {0, 0, 0, 0},
             assignments = {}
         },
     },
-    ["FW.190.A8"] = {
+    ["FW.190A.8"] = {
         ["Panther1"] = {
-            IFFs = {1050, 1051, 1052, 1053},
+            IFFs = {0, 0, 0, 0},
             assignments = {}
         },
     },
-    ["FW.190.D9"] = { 
+    ["FW.190D.9"] = { 
         ["Angriff1"] = { 
-            IFFs = {1370, 1371, 1372, 1373}, 
+            IFFs = {0, 0, 0, 0}, 
             assignments = {}
         },
     },
     ["I.16"] = { 
         ["Berkut1"] = { 
-            IFFs = {1360, 1361, 1362, 1363}, 
+            IFFs = {0, 0, 0, 0}, 
             assignments = {}
         },
     },
     ["Yak.52"] = {
         ["Medved1"] = {
-            IFFs = {1434, 1435, 1436, 1437},
+            IFFs = {0, 0, 0, 0},
+            assignments = {}
+        },
+    },
+    ["La.7"] = {
+        ["Volk1"] = {
+            IFFs = {0, 0, 0, 0},
             assignments = {}
         },
     },
 }
+
+applyCallsignOverrides()
 
 function releaseSlot(playerName, zoneName)
     if zoneAssignments[zoneName] then
@@ -380,7 +716,6 @@ function releaseSlot(playerName, zoneName)
 
                 globalCallsignAssignments[playerName] = nil
 
-                BASE:I(string.format("Released %s from player %s in zone %s", callsign, playerName, zoneName))
                 break
             end
         end
@@ -399,7 +734,6 @@ function sendDetailedMessageToPlayer(playerUnitID, message, playerGroupID, unitN
 
     local dur = 120
     if u:InAir() then
-    BASE:I(string.format("sendDetailedMessageToPlayer: Short message used for %s, altitude %.1f", unitName, u:GetAltitude(true)))
     dur = 10 end
     MESSAGE:New(message, dur):ToUnit(u)
     if playerGroupID and trigger.misc.getUserFlag(180) == 0 then
@@ -425,29 +759,40 @@ end
 -- local function refreshBeacons()
 --     if IsGroupActive("CVN-73") then
 --         local ab = AirBoss("CVN-73")
+--         if not ab then return end
 --         ab.beacon:ActivateTACAN(73, "X", "GWN", true)
 --         ab.beacon:ActivateICLS(13, "GWN")
 --     end
 
 --     if IsGroupActive("CVN-72") then
 --         local ab = AirBoss("CVN-72")
+--         if not ab then return end
 --         ab.beacon:ActivateTACAN(72, "X", "ABE", true)
 --         ab.beacon:ActivateICLS(12, "ABE")
 --     end
 
 --     if IsGroupActive("CVN-59") then
 --         local ab = AirBoss("CVN-59")
+--         if not ab then return end
 --         ab.beacon:ActivateTACAN(59, "X", "FTS", true)
 --         ab.beacon:ActivateICLS(9,  "FTS")
 --     end
---     if IsGroupActive("ESSEX") then
---         local ab = AirBoss("ESSEX")
---         ab.beacon:ActivateTACAN(74, "X", "ESS", true)
---         ab.beacon:ActivateICLS(14, "ESS")
+--     if IsGroupActive("CVN-74") then
+--         local ab = AirBoss("CVN-74")
+--         if not ab then return end
+--         ab.beacon:ActivateTACAN(74, "X", "JCS", true)
+--         ab.beacon:ActivateICLS(14, "JCS")
 --     end
 -- end
 
 -- SCHEDULER:New(nil, refreshBeacons, {}, 30, 1200)
+
+local function IsThereACarrier()
+    if IsGroupActive("CVN-73") or IsGroupActive("CVN-72") or IsGroupActive("CVN-59") 
+        or IsGroupActive("ESSEX") then return true
+    end
+    return false
+end
 
 local function getBRC(cvnName)
     if cvnName and IsGroupActive(cvnName) then
@@ -511,7 +856,7 @@ function getCarrierInfo()
 end
 
 local function getAirbaseWind(airbaseName)
-    local airbase = AIRBASE:FindByName(airbaseName)
+    local airbase = GetAirbaseByNameCached(airbaseName)
     if airbase then
         local airbaseCoord = airbase:GetCoordinate()  
         local windDirection, windSpeed = airbaseCoord:GetWind(10)
@@ -528,9 +873,13 @@ local function getAirbaseWind(airbaseName)
 end
 
 local function fetchActiveRunway(zoneName)
-    local airbase = AIRBASE:FindByName(atisZones[zoneName].airbaseName)
+    local zoneData = atisZones[zoneName]
+    if not zoneData or not zoneData.airbaseName then
+        return "Airbase data unavailable."
+    end
+    local airbase = GetAirbaseByNameCached(zoneData.airbaseName)
     if not airbase then
-        trigger.action.outText("Airbase/FARP conflict detected or airbase not found: " .. atisZones[zoneName].airbaseName, 10)
+        trigger.action.outText("Airbase/FARP conflict detected or airbase not found: " .. zoneData.airbaseName, 10)
         return "Airbase data unavailable."
     end
     local landingRunway, takeoffRunway = airbase:GetActiveRunway()
@@ -589,17 +938,18 @@ end
 
 local function sendATISInformation(client, group, zoneName)
     if not client then return end
-    if zoneName:lower():find("carrier") then
+    if isCarrierZoneName(zoneName) then
         local mother = IsGroupActive("ESSEX") and "ESSEX"
                     -- or IsGroupActive("CVN-72") and "CVN-72"
                     -- or IsGroupActive("CVN-59") and "CVN-59"
                     -- or IsGroupActive("CVN-73") and "CVN-73"
 
         local carrierName, freqCode, morseCode = hullPrettyAndFreq(mother)
+        local altimeter = getAltimeter()
         local lines = {}
         table.insert(lines,
             string.format("ATIS for %s:\n\n%s, %s\n\nFreq: %s, Morse: %s\n\n%s",
-                          carrierName,getCarrierWind(mother),getAltimeter(),freqCode,morseCode,getBRC(mother)))
+                          carrierName,getCarrierWind(mother),altimeter,freqCode,morseCode,getBRC(mother)))
 
         -- if mother ~= "CVN-59" and IsGroupActive("CVN-59") then
         --     table.insert(lines,
@@ -610,7 +960,7 @@ local function sendATISInformation(client, group, zoneName)
             local essexName, essexFreq, essexMorse = hullPrettyAndFreq("ESSEX")
             table.insert(lines,
                 string.format("ATIS for %s:\n\n%s, %s\n\nFreq: %s, Morse: %s\n\n%s",
-                              essexName,getCarrierWind("ESSEX"),getAltimeter(),essexFreq,essexMorse,getBRC("ESSEX")))
+                              essexName,getCarrierWind("ESSEX"),altimeter,essexFreq,essexMorse,getBRC("ESSEX")))
         end
 
         MESSAGE:New(table.concat(lines,"\n------------------------------------------------\n"),15,""):ToUnit(client)
@@ -620,7 +970,8 @@ local function sendATISInformation(client, group, zoneName)
             MESSAGE:New(string.format("ATIS for %s:\n\n%s",zoneName,wind),15,""):ToUnit(client)
         else
             local run = fetchActiveRunway(zoneName,dir) or "Runway information not available"
-            local msg = string.format("ATIS for %s:\n\n%s, %s\n\n%s.",zoneName,wind,getAltimeter(),run)
+            local altimeter = getAltimeter()
+            local msg = string.format("ATIS for %s:\n\n%s, %s\n\n%s.",zoneName,wind,altimeter,run)
             MESSAGE:New(msg,20,""):ToUnit(client)
         end
     end
@@ -631,24 +982,23 @@ end
 local MainMenu = {}
 
 local function getNearestCarrierName(coord)
-    local nearest=nil local math=math.huge
+    local nearest=nil local minDist=math.huge
     for _,name in ipairs({"CVN-73","CVN-72","CVN-59","ESSEX"}) do
         if IsGroupActive(name) then
             local unit=UNIT:FindByName(name)
             if unit then
                 local distance=coord:Get2DDistance(unit:GetCoordinate())
-                if distance<math then math=distance nearest=name end
+                if distance<minDist then minDist=distance nearest=name end
             end
         end
     end
-    if math<200 then return nearest end
+    if minDist<200 then return nearest end
 end
 
 
 
 function getClosestFriendlyAirbaseInfo(client)
     if not client or not client:IsAlive() then
-        BASE:E("Client is nil or not alive.")
         return
     end
     local playerCoord = client:GetCoordinate()
@@ -680,13 +1030,13 @@ function getClosestFriendlyAirbaseInfo(client)
 
     local closestNormalZoneName,closestNormalDistance,closestNormalBearing = nil,math.huge,nil
     for zoneName,details in pairs(atisZones) do
-        local airbase = AIRBASE:FindByName(details.airbaseName)
+        local airbase = GetAirbaseByNameCached(details.airbaseName)
         if airbase and airbase:GetCoalition() == coalition.side.BLUE then
             local dist     = playerCoord:Get2DDistance(airbase:GetCoordinate())
             local trueBrg  = playerCoord:HeadingTo(airbase:GetCoordinate(),nil)
             local magDecl  = playerCoord:GetMagneticDeclination()
             local magBrg   = (trueBrg - magDecl + 360) % 360
-            if not zoneName:lower():find("carrier") and dist < closestNormalDistance then
+            if not isCarrierZoneName(zoneName) and dist < closestNormalDistance then
                 closestNormalZoneName = zoneName
                 closestNormalDistance = dist
                 closestNormalBearing  = magBrg
@@ -730,52 +1080,73 @@ function SetupATISMenu(client)
 
     local atisMenu = MENU_GROUP:New(group, "ATIS Information", mainMenu)
     MENU_GROUP_COMMAND:New(group, "Get Closest Friendly Airbase", mainMenu, getClosestFriendlyAirbaseInfo, client)
+    local hasMother = IsThereACarrier()
+    if hasMother then
     MENU_GROUP_COMMAND:New(group, "Get ATIS for Mother", atisMenu, sendATISInformation, client, group, "Carrier")
-
+    end
     local currentMenu = atisMenu
-    local menuItemCount = 2
+    local menuItemCount = hasMother and 2 or 0
 
+    local entries = {}
     for zoneName, details in pairs(atisZones) do
-        if not zoneName:lower():find("carrier") then
-            local airbase = AIRBASE:FindByName(details.airbaseName)
+        if not isCarrierZoneName(zoneName) then
+            local airbase = GetAirbaseByNameCached(details.airbaseName)
             if airbase and airbase:GetCoalitionName() == 'Blue' then
-                if menuItemCount >= 9 then
-                    currentMenu = MENU_GROUP:New(group, "Next Page...", atisMenu)
-                    menuItemCount = 0
-                end
-                MENU_GROUP_COMMAND:New(group, "Get ATIS for " .. zoneName, currentMenu, sendATISInformation, client, group, zoneName)
-                menuItemCount = menuItemCount + 1
+                local wpSuffix = (type(WaypointList) == "table" and WaypointList[zoneName]) or ""
+                local wpNum = tonumber(tostring(wpSuffix):match("%d+"))
+                entries[#entries + 1] = {
+                    zoneName = zoneName,
+                    wpSuffix = wpSuffix,
+                    wpNum = wpNum
+                }
             end
         end
+    end
+
+    table.sort(entries, function(a, b)
+        if a.wpNum and b.wpNum then
+            if a.wpNum ~= b.wpNum then return a.wpNum > b.wpNum end
+            return a.zoneName < b.zoneName
+        end
+        if a.wpNum then return true end
+        if b.wpNum then return false end
+        return a.zoneName < b.zoneName
+    end)
+
+    for _, entry in ipairs(entries) do
+        if menuItemCount >= 9 then
+            currentMenu = MENU_GROUP:New(group, "More", currentMenu)
+            menuItemCount = 0
+        end
+        local zoneDisplayName = entry.zoneName .. entry.wpSuffix
+        MENU_GROUP_COMMAND:New(group, "Get ATIS for " .. zoneDisplayName, currentMenu, sendATISInformation, client, group, entry.zoneName)
+        menuItemCount = menuItemCount + 1
     end
 end
 
 function static:onBaseCapture(_event)
-local event = _event -- Core.Event#EVENTDATA
-if event.id == EVENTS.BaseCaptured and event.Place then
-	local capturedBaseName = event.Place:GetName()  
-	local coalitionSide = event.Place:GetCoalition()
+    local event = _event -- Core.Event#EVENTDATA
+    if event.id == EVENTS.BaseCaptured and event.Place then
+        local capturedBaseName = event.Place:GetName()  
+        local coalitionSide = event.Place:GetCoalition()
 
-	if (atisZoneNames[capturedBaseName] or atisZones[capturedBaseName]) and event.Place:GetCoalition() == coalition.side.BLUE then  
-		
-			local clientSet = SET_CLIENT:New():FilterCategories("plane"):FilterCoalitions("blue"):FilterAlive():FilterOnce()
-			clientSet:ForEachClient(function(client)
-				SetupATISMenu(client)  
-				SCHEDULER:New(nil, function()
-                local group=client:GetGroup()
-                local zname
-                for k,v in pairs(atisZones) do if v.airbaseName==capturedBaseName then zname=k break end end
-                if zname then sendATISInformation(client,group,zname) end
-                end, {}, 10)
-			end)
-		end
-	end  
+        if event.Place:GetCoalition() == coalition.side.BLUE then  
+                local zname = atisZoneByAirbaseName[capturedBaseName]
+                if zname then
+                local clientSet = SET_CLIENT:New():FilterCategories("plane"):FilterCoalitions("blue"):FilterAlive():FilterOnce()
+                clientSet:ForEachClient(function(client)
+                    SetupATISMenu(client)  
+                    SCHEDULER:New(nil, function()
+                    local group=client:GetGroup()
+                    sendATISInformation(client,group,zname)
+                    end, {}, 10)
+                end)
+            end
+        end  
+    end
 end
 activeCSMenus = {}
-function static:onPlayerSpawn(_event)
-local event = _event
-if event.id == EVENTS.PlayerEnterAircraft and event.IniUnit and event.IniPlayerName then
-	local player = event.IniUnit
+function static:processPlayerSpawn(player, zoneNameOverride)
 	local playerName = player:GetPlayerName()
 	local UnitName = player:GetName()
 	local rankDisplay = playerName
@@ -793,12 +1164,15 @@ if event.id == EVENTS.PlayerEnterAircraft and event.IniUnit and event.IniPlayerN
 	local groupName = group:GetName()
 	
 	local foundZone = false
-	
-	for _, zoneName in ipairs(allZones) do
-		local zone = ZONE:New(zoneName)
-		if zone and zone:IsCoordinateInZone(player:GetCoordinate()) then
-			  foundZone = true
-			local playerUnitID = player:GetID()
+		local playerCoord = player:GetCoordinate()
+		
+		for _, zoneName in ipairs(allZones) do
+			if not zoneNameOverride or zoneName == zoneNameOverride then
+				local zone = allZoneObjects[zoneName]
+				if zone and playerCoord and zone:IsCoordinateInZone(playerCoord) then
+	                foundZone = true
+	                
+	                local playerUnitID = player:GetID()
 			local playerGroupID = player:GetGroup():GetID()
 			
 			local isNewVisit = not playerZoneVisits[playerName] or not playerZoneVisits[playerName][zoneName]
@@ -808,78 +1182,76 @@ if event.id == EVENTS.PlayerEnterAircraft and event.IniUnit and event.IniPlayerN
 			local assignedCallsign, assignedIFF = findOrAssignSlot(playerName, groupName, zoneName)
 
 			local altimeterMessage = getAltimeter()
-			local temperatureMessage = getPlayerTemperature(player:GetCoordinate())
-			local greetingMessage, detailedMessage
-            local windMessage,displayWindDirection=atisZones[zoneName] and getAirbaseWind(atisZones[zoneName].airbaseName) or getPlayerWind(player:GetCoordinate())
-            local activeRunwayMessage=atisZones[zoneName] and fetchActiveRunway(zoneName,displayWindDirection) or "N/A"
+		                local temperatureMessage = getPlayerTemperature(playerCoord)
+		                local greetingMessage, detailedMessage
+		                local windMessage, displayWindDirection
+		                if atisZones[zoneName] then
+		                    windMessage, displayWindDirection = getAirbaseWind(atisZones[zoneName].airbaseName)
+		                else
+		                    windMessage, displayWindDirection = getPlayerWind(playerCoord)
+		                end
+		                local activeRunwayMessage = atisZones[zoneName] and fetchActiveRunway(zoneName,displayWindDirection) or "N/A"
 
-                local carrierHull=getNearestCarrierName(player:GetCoordinate())
+	                    local carrierHull=getNearestCarrierName(playerCoord)
                 local carrierName,freqCode,morseCode,brcMessage,carrierWindMessage
                 if carrierHull then
                     brcMessage=getBRC(carrierHull)
                     carrierWindMessage=getCarrierWind(carrierHull)
                     carrierName,freqCode,morseCode=hullPrettyAndFreq(carrierHull)
                 end
-				if zoneName:lower():find("carrier") and carrierHull then
+				if isCarrierZoneName(zoneName) and carrierHull then
 
                    if assignedCallsign and assignedIFF then
-					greetingMessage = string.format("Welcome aboard %s, %s!\n\nYou have been assigned to %s, IFF %d.\n\nStandby for weather report from Mother.", carrierName, rankDisplay, assignedCallsign, assignedIFF)
+					greetingMessage = string.format("Welcome aboard %s, %s!\n\nYou have been assigned to %s, IFF %04d.\n\nStandby for weather report from Mother.", carrierName, rankDisplay, assignedCallsign, assignedIFF)
 					detailedMessage = string.format("Welcome aboard %s, %s!\n\n%s, %s, %s\n\nFreq: %s, Morse: %s\n\n%s\n\nOnce 7 miles out, push Tactical on CH 3.", carrierName, assignedCallsign, carrierWindMessage, temperatureMessage, altimeterMessage, freqCode, morseCode, brcMessage)
 				else
-					greetingMessage = string.format("Welcome aboard %s, %s!\n\nStandby for weather and BRC.", carrierName, rankDisplay)
-					detailedMessage = string.format("Welcome aboard %s, %s!\n\n%s, %s, %s\n\nFreq: %s, Morse: %s\n\n%s\n\nOnce 7 miles out, push Tactical on CH 3.", carrierName, playerName, carrierWindMessage, temperatureMessage, altimeterMessage, freqCode, morseCode, brcMessage)
-				end
-			else
-				local windMessage, displayWindDirection
+                        greetingMessage = string.format("Welcome aboard %s, %s!\n\nStandby for weather and BRC.", carrierName, rankDisplay)
+                        detailedMessage = string.format("Welcome aboard %s, %s!\n\n%s, %s, %s\n\nFreq: %s, Morse: %s\n\n%s\n\nOnce 7 miles out, push Tactical on CH 3.", carrierName, playerName, carrierWindMessage, temperatureMessage, altimeterMessage, freqCode, morseCode, brcMessage)
+                    end
+	                else
+	                    if atisZones[zoneName] then
 
-				if atisZones[zoneName] then
-					windMessage, displayWindDirection = getAirbaseWind(atisZones[zoneName].airbaseName)
-					local activeRunwayMessage = fetchActiveRunway(zoneName, displayWindDirection)
+	                        if isNewVisit then
+	                            if assignedCallsign and assignedIFF then
+                                greetingMessage = string.format("Welcome to %s, %s!\n\nYou have been assigned to %s, IFF %04d.\n\nStandby for weather and ATIS information.", zoneName, rankDisplay, assignedCallsign, assignedIFF)
+                                detailedMessage = string.format("Welcome to %s, %s!\n\n%s, %s, %s.\n\n%s.\n\nOnce airborne push Tactical on CH 3.", zoneName, assignedCallsign, windMessage, temperatureMessage, altimeterMessage, activeRunwayMessage)
+                            else
+                                greetingMessage = string.format("Welcome to %s, %s!\n\nStandby for weather information.", zoneName, rankDisplay)
+                                detailedMessage = string.format("Welcome to %s, %s!\n\n%s, %s, %s.\n\n%s.\n\nOnce airborne push Tactical on CH 3.", zoneName, playerName, windMessage, temperatureMessage, altimeterMessage, activeRunwayMessage)
+                            end
 
-					if isNewVisit then
-						if assignedCallsign and assignedIFF then
-							greetingMessage = string.format("Welcome to %s, %s!\n\nYou have been assigned to %s, IFF %d.\n\nStandby for weather and ATIS information.", zoneName, rankDisplay, assignedCallsign, assignedIFF)
-							detailedMessage = string.format("Welcome to %s, %s!\n\n%s, %s, %s.\n\n%s.\n\nOnce airborne push Tactical on CH 3.", zoneName, assignedCallsign, windMessage, temperatureMessage, altimeterMessage, activeRunwayMessage)
-						else
-							greetingMessage = string.format("Welcome to %s, %s!\n\nStandby for weather information.", zoneName, rankDisplay)
-							detailedMessage = string.format("Welcome to %s, %s!\n\n%s, %s, %s.\n\n%s.\n\nOnce airborne push Tactical on CH 3.", zoneName, playerName, windMessage, temperatureMessage, altimeterMessage, activeRunwayMessage)
-						end
+                        else
+                            if assignedCallsign and assignedIFF then
+                                greetingMessage = string.format("Welcome back to %s, %s!\n\nYou have been assigned to %s, IFF %04d.\n\nYou'll receive the latest weather and ATIS info shortly.", zoneName, rankDisplay, assignedCallsign, assignedIFF)
+                                detailedMessage = string.format("Welcome back to %s, %s!\n\n%s, %s, %s.\n\n%s.\n\nOnce airborne push Tactical on CH 3.", zoneName, assignedCallsign, windMessage, temperatureMessage, altimeterMessage, activeRunwayMessage)
+                            else
+                                greetingMessage = string.format("Welcome back to %s, %s!\n\nStandby for updated weather information.", zoneName, rankDisplay)
+                                detailedMessage = string.format("Welcome back to %s, %s!\n\n%s, %s, %s.\n\n%s.\n\nOnce airborne push Tactical on CH 3.", zoneName, playerName, windMessage, temperatureMessage, altimeterMessage, activeRunwayMessage)
+                            end
+                        end
+	                    else
 
-					else
-						if assignedCallsign and assignedIFF then
-							greetingMessage = string.format("Welcome back to %s, %s!\n\nYou have been assigned to %s, IFF %d.\n\nYou'll receive the latest weather and ATIS info shortly.", zoneName, rankDisplay, assignedCallsign, assignedIFF)
-							detailedMessage = string.format("Welcome back to %s, %s!\n\n%s, %s, %s.\n\n%s.\n\nOnce airborne push Tactical on CH 3.", zoneName, assignedCallsign, windMessage, temperatureMessage, altimeterMessage, activeRunwayMessage)
-						else
-							greetingMessage = string.format("Welcome back to %s, %s!\n\nStandby for updated weather information.", zoneName, rankDisplay)
-							detailedMessage = string.format("Welcome back to %s, %s!\n\n%s, %s, %s.\n\n%s.\n\nOnce airborne push Tactical on CH 3.", zoneName, playerName, windMessage, temperatureMessage, altimeterMessage, activeRunwayMessage)
-						end
-					end
-				else
+	                        if isNewVisit then
+	                            if assignedCallsign and assignedIFF then
+                                greetingMessage = string.format("Welcome to %s, %s!\n\nYou have been assigned to %s, IFF %04d.\n\nStandby for weather information.", zoneName, rankDisplay, assignedCallsign, assignedIFF)
+                                detailedMessage = string.format("Welcome to %s, %s!\n\n%s, %s, %s.\n\nOnce airborne push Tactical on CH 3.", zoneName, assignedCallsign, windMessage, temperatureMessage, altimeterMessage)
+                            else
+                                greetingMessage = string.format("Welcome to %s, %s!\n\nStandby for weather information.", zoneName, rankDisplay)
+                                detailedMessage = string.format("Welcome to %s, %s!\n\n%s, %s, %s.\n\nOnce airborne push Tactical on CH 3.", zoneName, playerName, windMessage, temperatureMessage, altimeterMessage)
+                            end
 
-					local playerCoord = player:GetCoordinate()
-					windMessage, _ = getPlayerWind(playerCoord)
-					temperatureMessage = getPlayerTemperature(playerCoord)
+                        else
+                            if assignedCallsign and assignedIFF then
+                                greetingMessage = string.format("Welcome back to %s, %s!\n\nYou have been assigned to %s, IFF %04d.\n\nYou'll receive updated weather information shortly.", zoneName, rankDisplay, assignedCallsign, assignedIFF)
+                                detailedMessage = string.format("Welcome back to %s, %s!\n\n%s, %s, %s.\n\nOnce airborne push Tactical on CH 3.", zoneName, assignedCallsign, windMessage, temperatureMessage, altimeterMessage)
+                            else
+                                greetingMessage = string.format("Welcome back to %s, %s!\n\nStandby for updated weather information.", zoneName, rankDisplay)
+                                detailedMessage = string.format("Welcome back to %s, %s!\n\n%s, %s, %s.\n\nOnce airborne push Tactical on CH 3.", zoneName, playerName, windMessage, temperatureMessage, altimeterMessage)
+                            end
+                        end
+                    end
+                end
 
-					if isNewVisit then
-						if assignedCallsign and assignedIFF then
-							greetingMessage = string.format("Welcome to %s, %s!\n\nYou have been assigned to %s, IFF %d.\n\nStandby for weather information.", zoneName, rankDisplay, assignedCallsign, assignedIFF)
-							detailedMessage = string.format("Welcome to %s, %s!\n\n%s, %s, %s.\n\nOnce airborne push Tactical on CH 3.\n\nDon't forget supplies.", zoneName, assignedCallsign, windMessage, temperatureMessage, altimeterMessage)
-						else
-							greetingMessage = string.format("Welcome to %s, %s!\n\nStandby for weather information.", zoneName, rankDisplay)
-							detailedMessage = string.format("Welcome to %s, %s!\n\n%s, %s, %s.\n\nOnce airborne push Tactical on CH 3.\n\nDon't forget supplies.", zoneName, playerName, windMessage, temperatureMessage, altimeterMessage)
-						end
-
-					else
-						if assignedCallsign and assignedIFF then
-							greetingMessage = string.format("Welcome back to %s, %s!\n\nYou have been assigned to %s, IFF %d.\n\nYou'll receive updated weather information shortly.", zoneName, rankDisplay, assignedCallsign, assignedIFF)
-							detailedMessage = string.format("Welcome back to %s, %s!\n\n%s, %s, %s.\n\nOnce airborne push Tactical on CH 3.\n\nDon't forget supplies.", zoneName, assignedCallsign, windMessage, temperatureMessage, altimeterMessage)
-						else
-							greetingMessage = string.format("Welcome back to %s, %s!\n\nStandby for updated weather information.", zoneName, rankDisplay)
-							detailedMessage = string.format("Welcome back to %s, %s!\n\n%s, %s, %s.\n\nOnce airborne push Tactical on CH 3.\n\nDon't forget supplies.", zoneName, playerName, windMessage, temperatureMessage, altimeterMessage)
-						end
-					end
-				end
-			end
                sendGreetingToPlayer(UnitName, greetingMessage)
                 if followID[playerName] then followID[playerName]:Stop()
                 followID[playerName] = nil
@@ -911,11 +1283,11 @@ if event.id == EVENTS.PlayerEnterAircraft and event.IniUnit and event.IniPlayerN
                                         zoneAssignments[zoneName][fullCS] = playerName
                                         globalCallsignAssignments[playerName] = {callsign = fullCS, zoneName = zoneName,groupName=groupName}
                                         if followID[playerName] then followID[playerName]:Stop() followID[playerName]=nil end
-                                        if zoneName:lower():find("carrier") and carrierHull then
-                                            sendGreetingToPlayer(UnitName, string.format("Welcome aboard %s, %s!\n\nYou have been assigned to %s, IFF %d.\n\nStandby for weather report from Mother.", carrierName, playerName, fullCS, iff))
+                                        if isCarrierZoneName(zoneName) and carrierHull then
+                                            sendGreetingToPlayer(UnitName, string.format("Welcome aboard %s, %s!\n\nYou have been assigned to %s, IFF %04d.\n\nStandby for weather report from Mother.", carrierName, playerName, fullCS, iff))
                                             followID[playerName] = SCHEDULER:New(nil, sendDetailedMessageToPlayer, {playerUnitID, string.format("Welcome aboard %s, %s!\n\n%s, %s, %s\n\nFreq: %s, Morse: %s\n\n%s\n\nOnce 7 miles out, push Tactical on CH 3.", carrierName, fullCS, carrierWindMessage, temperatureMessage, altimeterMessage, freqCode, morseCode, brcMessage), playerGroupID, UnitName}, 60)
                                         else
-                                            sendGreetingToPlayer(UnitName, string.format("Welcome to %s, %s!\n\nYou have been assigned to %s, IFF %d.\n\nStandby for weather and ATIS information.", zoneName, playerName, fullCS, iff))
+                                            sendGreetingToPlayer(UnitName, string.format("Welcome to %s, %s!\n\nYou have been assigned to %s, IFF %04d.\n\nStandby for weather and ATIS information.", zoneName, playerName, fullCS, iff))
                                             followID[playerName] = SCHEDULER:New(nil, sendDetailedMessageToPlayer, {playerUnitID, string.format("Welcome to %s, %s!\n\n%s, %s, %s.\n\n%s.\n\nOnce airborne push Tactical on CH 3.", zoneName, fullCS, windMessage, temperatureMessage, altimeterMessage, activeRunwayMessage), playerGroupID, UnitName}, 60)
                                         end
                                         refreshSubmenus()
@@ -932,11 +1304,13 @@ if event.id == EVENTS.PlayerEnterAircraft and event.IniUnit and event.IniPlayerN
                     end
                      refreshSubmenus()
                 end
-                if assignedCallsign and assignedIFF then
-                buildCallSignMenu()
-                end
-            end
-        end
+	                if assignedCallsign and assignedIFF then
+	                buildCallSignMenu()
+	                end
+	                break
+	            end
+	        end
+	    end
         if not foundZone then
             local carrierHull = getNearestCarrierName(player:GetCoordinate())
             if carrierHull then
@@ -955,7 +1329,7 @@ if event.id == EVENTS.PlayerEnterAircraft and event.IniUnit and event.IniPlayerN
                     local windMessage               = getCarrierWind(carrierHull)
 
                     if assignedCallsign and assignedIFF then
-                        greetingMessage = string.format("Welcome aboard %s, %s!\n\nYou have been assigned to %s, IFF %d.\n\nStandby for weather report from Mother.",prettyName,rankDisplay,assignedCallsign,assignedIFF)
+                        greetingMessage = string.format("Welcome aboard %s, %s!\n\nYou have been assigned to %s, IFF %04d.\n\nStandby for weather report from Mother.",prettyName,rankDisplay,assignedCallsign,assignedIFF)
                         detailedMessage = string.format("Welcome aboard %s, %s!\n\n%s, %s, %s\n\n%s\n\nOnce 7 miles out, push Tactical on CH 3.",prettyName,assignedCallsign,windMessage,temperatureMsg,altimeterMessage,brcMessage)
                     else
                         greetingMessage = string.format("Welcome aboard %s, %s!\n\nStandby for weather and BRC.",prettyName,rankDisplay)
@@ -972,13 +1346,12 @@ if event.id == EVENTS.PlayerEnterAircraft and event.IniUnit and event.IniPlayerN
             end
         end
     end
-end
---[[ 
+
+
 function WeaponImpact(Weapon)
     local impactPos = Weapon:GetImpactVec3()
     if impactPos then
         trigger.action.explosion(impactPos, 150)
-        BASE:I("Explosion triggered at impact position.")
     end
 	Weapon:StopTrack()
 end
@@ -1003,14 +1376,11 @@ function static:OnEventShot(EventData)
                     weapon:SetFuncTrack(WeaponTrack)
                     weapon:SetFuncImpact(WeaponImpact)
                     weapon:StartTrack()
-					BASE:I("Tracking RED coalition helicopter target.")
                 end
             end
         end
     end
 end
-
- ]]
 
 function AddEscortRequestMenu(group)
     if not group then
@@ -1024,16 +1394,16 @@ function EnableEscortRequestMenu(group)
         return
     end
     local groupName = group:GetName()
-    if menuEscortRequest[groupName] then
-        menuEscortRequest[groupName]:Remove()
+    if escortRequestMenus[groupName] then
+        escortRequestMenus[groupName]:Remove()
     end
 end
 function RequestEscort(group)
     EscortClientGroup(group)
     local groupName = group:GetName()
-    if menuEscortRequest[groupName] then
-        menuEscortRequest[groupName]:Remove()
-        menuEscortRequest[groupName] = nil
+    if escortRequestMenus[groupName] then
+        escortRequestMenus[groupName]:Remove()
+        escortRequestMenus[groupName] = nil
     end
 end
 function RemoveRequestEscortMenu(group)
@@ -1045,18 +1415,69 @@ function RemoveRequestEscortMenu(group)
 end
 function FindEscortTemplateWithAlias(clientGroup, alias)
     local aircraftType = clientGroup:GetUnit(1):GetTypeName()
-    local templateName = "EscortA10"
+    local isColdwar = (Era == "Coldwar")
+    local templateName
     if string.find(aircraftType, "F-15") then
-        templateName = "EscortF15"
+        templateName = isColdwar and "EscortF15_Coldwar" or "EscortF15"
+    else
+        templateName = isColdwar and "EscortA10_Coldwar" or "EscortA10"
     end
     return templateName
 end
 
-function EscortClientGroup(clientGroup)
-    local groupName = clientGroup:GetName()
-    local spawnCount = spawnedGroups[groupName] and spawnedGroups[groupName].escortSpawnCount or 1
-    local alias = groupName .. "_Escort_" .. string.format("%03d", spawnCount)
-    local templateName = FindEscortTemplateWithAlias(clientGroup, alias)
+function GetClosestEscortAirdromeZone(clientGroup)
+    if not clientGroup then
+        return nil, nil
+    end
+    local zoneList = (bc and bc.zones) or zones
+    if type(zoneList) ~= "table" then
+        return nil, nil
+    end
+
+    local clientUnit = clientGroup:GetUnit(1)
+    if not clientUnit then
+        return nil, nil
+    end
+
+    local clientCoord = clientUnit:GetCoordinate()
+    if not clientCoord then
+        return nil, nil
+    end
+
+    local seenAirbases = {}
+    local closestZoneName = nil
+    local closestAirbase = nil
+    local closestDistance = math.huge
+
+    for _, zone in pairs(zoneList) do
+        if zone and zone.side == 2 and zone.active then
+            local airbaseName = zone.airbaseName
+            if type(airbaseName) == "string" and airbaseName ~= "" and not seenAirbases[airbaseName] then
+                local airbase = GetAirbaseByNameCached(airbaseName)
+                local sideOk = airbase:GetCoalition() == coalition.side.BLUE
+                if sideOk and airbase:IsAirdrome() then
+                    local airbaseCoord = airbase:GetCoordinate()
+                    if airbaseCoord then
+                        local distance = clientCoord:Get2DDistance(airbaseCoord)
+                        if distance and distance < closestDistance then
+                            closestDistance = distance
+                            closestZoneName = zone.zone
+                            closestAirbase = airbase
+                        end
+                    end
+                end
+                seenAirbases[airbaseName] = true
+            end
+        end
+    end
+
+    return closestZoneName, closestAirbase
+end
+
+function SpawnEscortInAirBehindClient(clientGroup, templateName, alias, onSpawn)
+    if not clientGroup or not templateName or not alias then
+        return nil
+    end
 
     local clientPos = clientGroup:GetPointVec3()
     local clientHeading = clientGroup:GetHeading()
@@ -1065,32 +1486,162 @@ function EscortClientGroup(clientGroup)
     local offsetX = math.cos(math.rad(clientHeading)) * distanceBehindMeters
     local offsetZ = math.sin(math.rad(clientHeading)) * distanceBehindMeters
 
-    local spawnPos = { x = clientPos.x - offsetX, y = clientPos.y, z = clientPos.z - offsetZ }
-    local coord = COORDINATE:NewFromVec3(spawnPos)
-    local heading = clientHeading
     local desiredAlt = UTILS.MetersToFeet(clientPos.y) + 10000
-    local g = Respawn.SpawnAtPoint(templateName, coord, heading, 5, desiredAlt, 220)
-    if not g then return end
+    local spawnPos = { x = clientPos.x - offsetX, y = UTILS.FeetToMeters(desiredAlt), z = clientPos.z - offsetZ }
+    local coord = COORDINATE:NewFromVec3(spawnPos)
 
-    timer.scheduleFunction(function(group, time)
-        local spawnedEscortGroup = GROUP:FindByName(group:getName())
-        escortGroup = FLIGHTGROUP:New(spawnedEscortGroup)
+    local spawnHeading = tonumber(clientHeading) or 0
+    spawnHeading = ((spawnHeading % 360) + 360) % 360
+
+    local sp = SPAWN:NewWithAlias(templateName, alias)
+    sp:InitHeading(spawnHeading, spawnHeading)
+    if onSpawn then
+        sp:OnSpawnGroup(onSpawn)
+    end
+
+    return sp:SpawnFromCoordinate(coord)
+end
+
+function SpawnEscortFromGround(clientGroup, templateName, alias, onSpawn)
+    if not clientGroup or not templateName or not alias then
+        return nil
+    end
+
+    local _, homebase = GetClosestEscortAirdromeZone(clientGroup)
+    if not homebase then
+        return nil
+    end
+
+    local function GetEscortTemplateUnitCount(name)
+        local tpl = _DATABASE.Templates.Groups[name]
+        if not tpl and FetchMETemplate then
+            tpl = FetchMETemplate(name)
+        end
+        local units = tpl and tpl.units
+        if type(units) == "table" and #units > 0 then
+            return #units
+        end
+        return 1
+    end
+
+    local function PickConsecutiveParkingIds(freeSpots, need)
+        if type(freeSpots) ~= "table" or #freeSpots < need then
+            return nil
+        end
+
+        table.sort(freeSpots, function(a, b)
+            return a.TerminalID < b.TerminalID
+        end)
+
+        local run = 1
+        for i = 2, #freeSpots do
+            if freeSpots[i].TerminalID == freeSpots[i - 1].TerminalID + 1 then
+                run = run + 1
+            else
+                run = 1
+            end
+            if run >= need then
+                local ids = {}
+                for j = i - run + 1, i do
+                    ids[#ids + 1] = freeSpots[j].TerminalID
+                end
+                return ids
+            end
+        end
+
+        local ids = {}
+        for i = 1, need do
+            ids[i] = freeSpots[i].TerminalID
+        end
+        return ids
+    end
+
+    local sp = SPAWN:NewWithAlias(templateName, alias)
+    if onSpawn then
+        sp:OnSpawnGroup(onSpawn)
+    end
+
+    local need = math.max(GetEscortTemplateUnitCount(templateName), 1)
+    local terminalType = AIRBASE.TerminalType.OpenMedOrBig
+    local freeSpots = homebase:GetFreeParkingSpotsTable(terminalType, false) or {}
+    if #freeSpots < need then
+        local freeSpotsWithTakeoff = homebase:GetFreeParkingSpotsTable(terminalType, true)
+        if type(freeSpotsWithTakeoff) == "table" and #freeSpotsWithTakeoff > #freeSpots then
+            freeSpots = freeSpotsWithTakeoff
+        end
+    end
+
+    local parkingIds = PickConsecutiveParkingIds(freeSpots, need)
+    local spawned = nil
+    if parkingIds then
+        spawned = sp:SpawnAtParkingSpot(homebase, parkingIds, SPAWN.Takeoff.Hot)
+    end
+
+    return spawned
+end
+
+function EscortClientGroup(clientGroup)
+    local groupName = clientGroup:GetName()
+    local spawnCount = spawnedGroups[groupName] and spawnedGroups[groupName].escortSpawnCount or 1
+    local playerName = clientGroup:GetUnit(1):GetPlayerName() or groupName
+    local safePlayerName = playerName:gsub("%s+", "_"):gsub("[^%w_%-]", "_")
+    local alias = groupName .. "_" .. safePlayerName .. "_Escort_" .. string.format("%03d", spawnCount)
+    local templateName = FindEscortTemplateWithAlias(clientGroup, alias)
+    local escortSpawnedFromGround = false
+
+    local function OnEscortSpawn(g)
+        local escortGroup = FLIGHTGROUP:New(g)
         escortGroup:GetGroup():CommandSetUnlimitedFuel(true):SetOptionRadarUsingForContinousSearch(true):SetOptionWaypointPassReport(false)
         escortGroups[groupName] = escortGroup
         local escortAuftrag = AUFTRAG:NewESCORT(clientGroup, { x = -100, y = 3048, z = 100 }, 40, { "Air" })
         escortGroup:AddMission(escortAuftrag)
-        MESSAGE:New("ESCORT IS ON ROUTE.\n\nYou can control the escort from the radio menu.", 20):ToGroup(clientGroup)
         RemoveRequestEscortMenu(clientGroup)
-        AddEscortMenu(clientGroup)
+        if escortSpawnedFromGround then
+            MESSAGE:New("Escort group is scrambling and about to taxi to the runway.\n\nWe'll join you shortly.", 20):ToGroup(clientGroup)
+            function escortGroup:OnAfterTakeoff(From, Event, To)
+                if clientGroup and clientGroup:IsAlive() then
+                    local escortAuftrag = AUFTRAG:NewESCORT(clientGroup, {x=-100, y=3048, z=300}, 40, {"Air"})
+                    escortAuftrag:SetMissionAltitude(25000)
+                    escortAuftrag:SetEngageDetected(40, {"Air"})
+                    escortAuftrag:SetMissionSpeed(600)
+                    escortAuftrag:SetROE(2)
+                    escortAuftrag:SetROT(3)
+                    self:MissionStart(escortAuftrag)
+                    AddEscortMenu(clientGroup)
+                    SCHEDULER:New(nil, function()
+                        if clientGroup and clientGroup:IsAlive() then
+                            MESSAGE:New("Escort group is now airborne, heading to your position.", 20):ToGroup(clientGroup)
+                        end
+                    end, {}, 30)
+                end
+            end
+        else
+            MESSAGE:New("ESCORT IS ON ROUTE.\n\nYou can control the escort from the radio menu.", 20):ToGroup(clientGroup)
+            AddEscortMenu(clientGroup)
+        end
         function escortGroup:OnAfterDead(From, Event, To)
-            escortGroup:__Stop(1)
+            self:__Stop(1)
             escortGroups[groupName] = nil
             RemoveEscortMenu(clientGroup)
             if clientGroup and clientGroup:IsAlive() then
                 MESSAGE:New("Your escort group has been destroyed. Takeoff from an airfield to get a new one.", 10):ToGroup(clientGroup)
             end
         end
-    end, g, timer.getTime() + 1)
+    end
+
+    local spawned = nil
+    if EscortTakeoffFromGround == true then
+        escortSpawnedFromGround = true
+        spawned = SpawnEscortFromGround(clientGroup, templateName, alias, OnEscortSpawn)
+        if not spawned then
+            escortSpawnedFromGround = false
+        end
+    end
+    if not spawned then
+        escortSpawnedFromGround = false
+        spawned = SpawnEscortInAirBehindClient(clientGroup, templateName, alias, OnEscortSpawn)
+    end
+
     spawnedGroups[groupName].escortSpawnCount = spawnCount + 1
 end
 function AddEscortMenu(group)
@@ -1128,8 +1679,6 @@ function RemoveEscortMenu(group)
     if escortMenus[groupName] then
         escortMenus[groupName]:Remove()
         escortMenus[groupName] = nil
-    else
-        env.info("No escort menu found for " .. groupName .. ".")
     end
 end
 function EscortOrbit(group)
@@ -1290,10 +1839,12 @@ function static:OnEventTakeoff(EventData)
 
     local playerUnit = EventData.IniUnit
     local playerGroup = playerUnit:GetGroup()
+    if not playerGroup then return end
     local PGName = playerGroup:GetName()
+    if not PGName then return end
     local playerType = playerUnit:GetTypeName()
 
-    if playerType == "F-15ESE" or playerType == "A-10C_2" or playerType == "Hercules" then
+    if playerType == "F-15ESE" or playerType == "A-10C_2" or playerType == "Hercules" or playerType == "C-130J-30" then
         spawnedGroups[PGName] = spawnedGroups[PGName] or {
             playerName = EventData.IniPlayerName,
             escortGroups = {},
@@ -1303,92 +1854,157 @@ function static:OnEventTakeoff(EventData)
 
         MESSAGE:New("Escort is available, " .. EventData.IniPlayerName .. ".", 10, ""):ToUnit(playerUnit)
         AddEscortRequestMenu(playerGroup)
-        menuEscortRequest[PGName] = spawnedGroups[PGName].menuEscortRequest
+        menuEscortRequest[PGName] = escortRequestMenus[PGName]
 
     end
 end
 
 function static:OnEventPlayerLeaveUnit(EventData)
-    BASE:I("OnEventPlayerLeaveUnit called")
+    local playerGroup = nil
 
-    if EventData.id == EVENTS.PlayerLeaveUnit or EventData.id == EVENTS.PilotDead then
+    local function cleanupEscortForGroupName(groupName)
+        if not groupName then return end
+
+        local escortGroup = escortGroups[groupName]
+        if escortGroup then
+            escortGroup:Destroy()
+            escortGroups[groupName] = nil
+        end
+
+        if escortMenus and escortMenus[groupName] then
+            escortMenus[groupName]:Remove()
+            escortMenus[groupName] = nil
+        end
+
+        if escortRequestMenus and escortRequestMenus[groupName] then
+            escortRequestMenus[groupName]:Remove()
+            escortRequestMenus[groupName] = nil
+        end
+
+        if menuEscortRequest and menuEscortRequest[groupName] then
+            menuEscortRequest[groupName]:Remove()
+            menuEscortRequest[groupName] = nil
+        end
+
+        if spawnedGroups and spawnedGroups[groupName] then
+            spawnedGroups[groupName] = nil
+        end
+    end
+
+    if EventData.id == EVENTS.PlayerLeaveUnit or EventData.id == EVENTS.PilotDead or EventData.id == EVENTS.Ejection then
         if EventData.IniUnit and EventData.IniPlayerName then
+            local playerName = EventData.IniPlayerName
             local playerUnit = EventData.IniUnit
             playerGroup = playerUnit:GetGroup()
-            if playerGroup then
-                local groupName = playerGroup:GetName()
-                local escortGroup = escortGroups[groupName]
-                if escortGroup then
-                    escortGroup:Destroy()
-                    escortGroups[groupName] = nil
-                    BASE:I("Escort group for " .. groupName .. " has been destroyed because the player left the unit.")
-                end
+            local groupName = playerGroup and playerGroup:GetName()
+            if (not groupName) and globalCallsignAssignments[playerName] then
+                groupName = globalCallsignAssignments[playerName].groupName
             end
 
-            local playerName = EventData.IniPlayerName
-            if followID and playerName and followID[playerName] then
+            local groupId = playerGroup and playerGroup:GetID() or (bc.groupByPlayer and bc.groupByPlayer[playerName])
+
+            cleanupEscortForGroupName(groupName)
+
+            if followID[playerName] then
                 followID[playerName]:Stop()
                 followID[playerName] = nil
             end
-            if activeCSMenus and playerGroup then
-                local groupName = playerGroup:GetName()
+            if groupName then
                 if activeCSMenus[groupName] then
                     activeCSMenus[groupName]:Remove()
                     activeCSMenus[groupName] = nil
                 end
             end
-            BASE:I("Player leaving unit: " .. playerName)
 
             if globalCallsignAssignments[playerName] then
                 local callsignInfo = globalCallsignAssignments[playerName]
                 local zoneName = callsignInfo.zoneName
-                BASE:I("Player had assignment: " .. callsignInfo.callsign .. " in zone " .. zoneName)
 
                 releaseSlot(playerName, zoneName)
                 globalCallsignAssignments[playerName] = nil
-            else
-                BASE:I("No global assignment found for player: " .. playerName)
+            end
+            if groupId then
+                if bc.groupSupportMenus[groupId] then
+                    local supportState = bc.groupSupportMenus[groupId]
+                    for _, handle in ipairs(supportState.items or {}) do
+                        missionCommands.removeItemForGroup(groupId, handle)
+                    end
+                    if supportState.menu then
+                        missionCommands.removeItemForGroup(groupId, supportState.menu)
+                    end
+                    bc.groupSupportMenus[groupId] = nil
+                end
+                if bc.playerNames then
+                    bc.playerNames[groupId] = nil
+                end
+            end
+            if bc.groupByPlayer then
+                bc.groupByPlayer[playerName] = nil
+            end
+            if bc.groupNameByPlayer then
+                bc.groupNameByPlayer[playerName] = nil
             end
         else
-            BASE:I("IniPlayerName is nil. Player might have disconnected without a proper event.")
-
             local clientSet = SET_CLIENT:New():FilterCategories("plane"):FilterCategories("helicopter"):FilterCoalitions("blue"):FilterAlive():FilterOnce()
+            local alivePlayers = {}
+            clientSet:ForEachClient(function(client)
+                local pname = client:GetPlayerName()
+                if pname then
+                    alivePlayers[pname] = true
+                end
+            end)
 
             for playerName, callsignInfo in pairs(globalCallsignAssignments) do
-                local isPlayerAlive = false
-
-                clientSet:ForEachClient(function(client)
-                    if client:GetPlayerName() == playerName then
-                        isPlayerAlive = true
-                    end
-                end)
-
-                if not isPlayerAlive then
+                if not alivePlayers[playerName] then
                     local zoneName=callsignInfo.zoneName
                     local gname=callsignInfo.groupName
+                    local groupId = bc.groupByPlayer and bc.groupByPlayer[playerName]
+                    cleanupEscortForGroupName(gname)
                     releaseSlot(playerName,zoneName)
-                    if followID and followID[playerName] then followID[playerName]:Stop() followID[playerName]=nil end
-                    if activeCSMenus and gname and activeCSMenus[gname] then activeCSMenus[gname]:Remove() activeCSMenus[gname]=nil end
+                    if followID[playerName] then followID[playerName]:Stop() followID[playerName]=nil end
+                    if gname then
+                        if activeCSMenus[gname] then activeCSMenus[gname]:Remove() activeCSMenus[gname]=nil end
+                    end
+                    if groupId then
+                        if bc.groupSupportMenus[groupId] then
+                            local supportState = bc.groupSupportMenus[groupId]
+                            for _, handle in ipairs(supportState.items or {}) do
+                                missionCommands.removeItemForGroup(groupId, handle)
+                            end
+                            if supportState.menu then
+                                missionCommands.removeItemForGroup(groupId, supportState.menu)
+                            end
+                            bc.groupSupportMenus[groupId] = nil
+                        end
+                        if bc.playerNames then
+                            bc.playerNames[groupId] = nil
+                        end
+                    end
+                    if bc.groupByPlayer then
+                        bc.groupByPlayer[playerName] = nil
+                    end
+                    if bc.groupNameByPlayer then
+                        bc.groupNameByPlayer[playerName] = nil
+                    end
                     globalCallsignAssignments[playerName]=nil
                 end
             end
         end
-    else
-        BASE:I("Event ID does not match PlayerLeaveUnit or PilotDead")
     end
-    if activeCSMenus and playerGroup then
+    if playerGroup then
     activeCSMenus[playerGroup:GetName()] = nil
     end
 end
 
 static:HandleEvent(EVENTS.Shot, static.OnEventShot)
-static:HandleEvent(EVENTS.PlayerEnterAircraft, static.onPlayerSpawn)
 static:HandleEvent(EVENTS.BaseCaptured, static.onBaseCapture)
 static:HandleEvent(EVENTS.PlayerLeaveUnit, static.OnEventPlayerLeaveUnit)
+static:HandleEvent(EVENTS.PilotDead, static.OnEventPlayerLeaveUnit)
+static:HandleEvent(EVENTS.Ejection, static.OnEventPlayerLeaveUnit)
 static:HandleEvent(EVENTS.Takeoff, static.OnEventTakeoff)
 _SETTINGS:SetPlayerMenuOff()
 _SETTINGS:SetA2G_BR()
 _SETTINGS:SetA2A_BULLS()
 _SETTINGS:SetImperial()
 
-BASE:I("Loading completed for Leka's special all in one script handler")
+BASE:I('Welcome Message has been loaded.')
