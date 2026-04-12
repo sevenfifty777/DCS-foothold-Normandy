@@ -53,7 +53,7 @@ Detailed guides and information:
 
 ## 🎮 Mission Files
 
-- **Mission File (Latest)**: [GitHub Releases](https://github.com/sevenfifty777/DCS-foothold-Normandy/releases/latest) - **Latest with Naval Warfare Update** - **Mods and No mods required** (V1 rocket launchers will not function)
+- **Mission File (Latest)**: [GitHub Releases](https://github.com/sevenfifty777/DCS-foothold-Normandy/releases/latest)
 - **Theater**: Normandy 1944 Map (required)
 - **Era**: World War II
 - **Players**: 2-32 recommended
