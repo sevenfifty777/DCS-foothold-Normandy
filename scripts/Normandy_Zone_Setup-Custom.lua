@@ -582,6 +582,9 @@ RunwayStrikePlaneTemplate = RunwayStrikePlaneTemplate or {
 	"UKCasMosquitoTemplate",
 	"AXERunwayJU88Template",
 }
+RunwayStrikePlaneTemplate2 = RunwayStrikePlaneTemplate2 or {
+	"DynamicStructure_Template",
+}
 
 
 
@@ -658,6 +661,7 @@ zones.Caen:addGroups({
     --GroupCommander:new({name='AXE_Caen-resupply-LeMolay', mission='supply', targetzone='LeMolay', type = 'surface'}),
 	GroupCommander:new({name='AXE_Caen-attack-Ford', mission='attack', template='RunwayStrikePlaneTemplate', MissionType='RUNWAYSTRIKE', targetzone='Ford', Altitude = RunwayStrikeAltitude()}),
 	GroupCommander:new({name='AXE_Caen-attack-NeedsOarPoint', mission='attack', template='CapPlaneTemplate', MissionType='CAP', targetzone='Needs Oar Point', Altitude = CapAltitude()}),
+	GroupCommander:new({name='AXE_Caen-attack-SainteCroix-Arty', mission='attack',template='ArtilleryConvoy',MissionType='ARTY',Reward=250, targetzone='Sainte-Croix', type='surface', SetActiveMission = true}),
     -- UK missions (active when Caen is blue-captured)
     GroupCommander:new({name='UK_Caen-resupply-Carpiquet', mission='supply', template='SupplyConvoy', targetzone='Carpiquet', type='surface', urgent=function() return zones.Carpiquet.side == 0 end, ForceUrgent=true}),
     GroupCommander:new({name='UK_Caen-resupply-SainteCroix', mission='supply', template='SupplyConvoy', targetzone='Sainte-Croix', type='surface', urgent=function() return zones.SainteCroix.side == 0 end, ForceUrgent=true}),
@@ -759,6 +763,9 @@ zones.LeMolay:addGroups({
 	GroupCommander:new({name='AXE_LeMolay-patrol-Caen', mission='patrol', template='CapPlaneTemplate', MissionType='CAP', targetzone='Caen', Altitude = CapAltitude()}),
 	GroupCommander:new({name='AXE_LeMolay-attack-Funtington', mission='attack', template='CasPlaneTemplate', MissionType='CAS', targetzone='Funtington', Altitude = CasAltitude()}),
 	GroupCommander:new({name='AXE_LeMolay-attack-NeedsOarPoint', mission='attack', template='RunwayStrikePlaneTemplate', MissionType='RUNWAYSTRIKE', targetzone='Needs Oar Point', Altitude = RunwayStrikeAltitude()}),
+	GroupCommander:new({name='AXE_LeMolay-attack-SaintPierreDuMont-Arty', mission='attack',template='ArtilleryConvoy',MissionType='ARTY',Reward=250, targetzone='Saint-Pierre', type='surface', SetActiveMission = true}),
+	GroupCommander:new({name='AXE_LeMolay-attack-LonguesSurMer-Arty', mission='attack',template='ArtilleryConvoy',MissionType='ARTY',Reward=250, targetzone='Longues-Sur-Mer', type='surface', SetActiveMission = true}),
+	GroupCommander:new({name='AXE_LeMolay-attack-Cricqueville-Arty', mission='attack',template='ArtilleryConvoy',MissionType='ARTY',Reward=250, targetzone='Cricqueville', type='surface', SetActiveMission = true}),
     -- UK missions (active when Le Molay is blue-captured)
     GroupCommander:new({name='UK_LeMolay-resupply-Cricqueville', mission='supply', template='SupplyConvoy', targetzone='Cricqueville', type='surface', urgent=function() return zones.Cricqueville.side == 0 end, ForceUrgent=true}),
     GroupCommander:new({name='UK_LeMolay-resupply-LonguesSurMer', mission='supply', template='SupplyConvoy', targetzone='Longues-Sur-Mer', type='surface', urgent=function() return zones.LonguesSurMer.side == 0 end, ForceUrgent=true}),
@@ -795,6 +802,8 @@ zones.SainteCroix:addGroups({
     -- UK missions (active when Sainte-Croix is blue-captured)
     GroupCommander:new({name='UK_SainteCroix-resupply-LeMolay', mission='supply', template='SupplyConvoy', targetzone='Le Molay', type='surface', urgent=function() return zones.LeMolay.side == 0 end, ForceUrgent=true}),
     GroupCommander:new({name='UK_SainteCroix-resupply-SaintPierre', mission='supply', template='SupplyConvoy', targetzone='Saint-Pierre', type='surface', urgent=function() return zones.SaintPierre.side == 0 end, ForceUrgent=true}),
+	GroupCommander:new({name='UK_SainteCroix-attack-Caen-Arty', mission='attack',template='ArtilleryConvoy',MissionType='ARTY',Reward=250, targetzone='Caen', type='surface', SetActiveMission = true}),	
+	GroupCommander:new({name='UK_SainteCroix-attack-Carpiquet-Arty', mission='attack',template='ArtilleryConvoy',MissionType='ARTY',Reward=250, targetzone='Carpiquet', type='surface', SetActiveMission = true}),	
 })
 zones.SaintOmer:addGroups({
     --GroupCommander:new({name='AXE_SaintOmer-resupply-Merville', mission='supply', targetzone='Merville', type = 'surface'}),
@@ -812,6 +821,7 @@ zones.Valognes:addGroups({
     -- UK missions (active when Valognes is blue-captured)
     GroupCommander:new({name='UK_Valognes-resupply-LeMolay', mission='supply', template='SupplyConvoy', targetzone='Le Molay', type='surface', urgent=function() return zones.LeMolay.side == 0 end, ForceUrgent=true}),
     GroupCommander:new({name='UK_Valognes-resupply-Brucheville', mission='supply', template='SupplyConvoy', targetzone='Brucheville', type='surface', urgent=function() return zones.Brucheville.side == 0 end, ForceUrgent=true}),
+	GroupCommander:new({name='UK_Valognes-attack-Brucheville-Arty', mission='attack',template='ArtilleryConvoy',MissionType='ARTY',Reward=250, targetzone='Brucheville', type='surface', SetActiveMission = true}),
 })
 -- New blocks for zones with no previous groupcommander entries
 zones.Rouen:addGroups({
@@ -835,21 +845,27 @@ zones.SaintPierre:addGroups({
     -- UK missions (active when Saint-Pierre is blue-captured)
     GroupCommander:new({name='UK_SaintPierre-resupply-LeMolay', mission='supply', template='SupplyConvoy', targetzone='Le Molay', type='surface', urgent=function() return zones.LeMolay.side == 0 end, ForceUrgent=true}),
     GroupCommander:new({name='UK_SaintPierre-resupply-SainteCroix', mission='supply', template='SupplyConvoy', targetzone='Sainte-Croix', type='surface', urgent=function() return zones.SainteCroix.side == 0 end, ForceUrgent=true}),
+	GroupCommander:new({name='UK_SaintPierre-attack-LeMolay-Arty', mission='attack',template='ArtilleryConvoy',MissionType='ARTY',Reward=250, targetzone='Le Molay', type='surface', SetActiveMission = true}),	
 })
 zones.LonguesSurMer:addGroups({
     -- UK missions (active when Longues-Sur-Mer is blue-captured)
     GroupCommander:new({name='UK_LonguesSurMer-resupply-LeMolay', mission='supply', template='SupplyConvoy', targetzone='Le Molay', type='surface', urgent=function() return zones.LeMolay.side == 0 end, ForceUrgent=true}),
     GroupCommander:new({name='UK_LonguesSurMer-resupply-SaintPierre', mission='supply', template='SupplyConvoy', targetzone='Saint-Pierre', type='surface', urgent=function() return zones.SaintPierre.side == 0 end, ForceUrgent=true}),
+	GroupCommander:new({name='UK_LonguesSurMer-attack-LeMolay-Arty', mission='attack',template='ArtilleryConvoy',MissionType='ARTY',Reward=250, targetzone='Le Molay', type='surface', SetActiveMission = true}),
 })
 zones.Cricqueville:addGroups({
     -- UK missions (active when Cricqueville is blue-captured)
     GroupCommander:new({name='UK_Cricqueville-resupply-LeMolay', mission='supply', template='SupplyConvoy', targetzone='Le Molay', type='surface', urgent=function() return zones.LeMolay.side == 0 end, ForceUrgent=true}),
     GroupCommander:new({name='UK_Cricqueville-resupply-LonguesSurMer', mission='supply', template='SupplyConvoy', targetzone='Longues-Sur-Mer', type='surface', urgent=function() return zones.LonguesSurMer.side == 0 end, ForceUrgent=true}),
+	GroupCommander:new({name='UK_Cricqueville-attack-LeMolay-Arty', mission='attack',template='ArtilleryConvoy',MissionType='ARTY',Reward=250, targetzone='Le Molay', type='surface', SetActiveMission = true}),
 })
 zones.Brucheville:addGroups({
     -- UK missions (active when Brucheville is blue-captured)
     GroupCommander:new({name='UK_Brucheville-resupply-Cricqueville', mission='supply', template='SupplyConvoy', targetzone='Cricqueville', type='surface', urgent=function() return zones.Cricqueville.side == 0 end, ForceUrgent=true}),
     GroupCommander:new({name='UK_Brucheville-resupply-LeMolay', mission='supply', template='SupplyConvoy', targetzone='Le Molay', type='surface', urgent=function() return zones.LeMolay.side == 0 end, ForceUrgent=true}),
+	GroupCommander:new({name='UK_Brucheville-attack-Cricqueville-Arty', mission='attack',template='ArtilleryConvoy',MissionType='ARTY',Reward=250, targetzone='Cricqueville', type='surface', SetActiveMission = true}),
+	--GroupCommander:new({name='UK_Brucheville-attack-LeMolay-Arty', mission='attack',template='ArtilleryConvoy',MissionType='ARTY',Reward=250, targetzone='Le Molay', type='surface', SetActiveMission = true}),
+	GroupCommander:new({name='UK_Brucheville-attack-SaintPierre-Arty', mission='attack',template='ArtilleryConvoy',MissionType='ARTY',Reward=250, targetzone='Saint-Pierre', type='surface', SetActiveMission = true}),
 })
 
 zones.BigginHill:addGroups({
