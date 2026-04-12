@@ -24,14 +24,10 @@ A dynamic territory control mission for DCS World set in World War II Normandy, 
   - Improved AI spawning algorithms for better game balance
   - Reduced server load through efficient event handling
 
-### **Enhanced F10 Commands**
-- `upgradeallblue` - Upgrades all Blue coalition zones, same as `upgradeallred`
-
 ### **Notes**
 - Harbor Tug boats are set as immortal , they are used only to ensure hidden zone belong to correct coallition
-- don't waste energy ad amo on it
+- don't waste energy and ammo on it
 - Due to lack of ship both side use the same model, so it can be hard to identify who's who , i recommend to enable label if needed
-- I may integrate some Naval mod in next versions to avoid this
 ---
 
 ## 📚 Documentation
@@ -45,7 +41,6 @@ Detailed guides and information:
 ## 🎮 Mission Files
 
 - **Mission File (Latest)**: [`missions`](missions/) - **Latest with Naval Warfare Update** - **Mods and No mods required** (V1 rocket launchers will not function)
-- **Mission File (Archive)**: [`previous_versions`](previous_versions/)
 - **Theater**: Normandy 1944 Map (required)
 - **Era**: World War II
 - **Players**: 2-32 recommended
@@ -89,7 +84,7 @@ Custom German WWII liveries for period-accurate aircraft appearance.
 The mission uses several custom Lua scripts for dynamic gameplay:
 
 ### Core Scripts
-- **[Moose Framework](scripts/Moose_2025-09-27_TT.lua)** - Main framework for mission logic
+- **[Foothold Config](scripts/Foothold_Config.lua)** - Main framework for mission logic
 - **[Zone Commander](scripts/zoneCommander_moose-Custom_WWII.lua)** - Territory control and zone management
 - **[Normandy Zone Setup](scripts/Normandy_Zone_Setup-Custom.lua)** - Zone definitions and configuration
 
