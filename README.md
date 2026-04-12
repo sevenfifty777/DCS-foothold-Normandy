@@ -15,7 +15,19 @@ A dynamic territory control mission for DCS World set in World War II Normandy, 
 
 ## 🚀 Recent Updates
 
-### **Latest Naval Warfare Enhancement (October 2025)**
+### **Latest update (April 2026)**
+
+- **All script updated to apply Leka's latest framework updates**
+- Including Foothold config file system
+- Due to WWII specific aircraft: config file updated to include them to callsign system, AllowedFlightTimeReward, AllowedCsar, CallsignOverrides and restockAircraft list
+- Now main mission is the nomods version, the modded version is still available but due to mods issue like the V1 launcher, some bugs will not be investigated
+
+- **🛠️ WIP Counter-Artillery System**: New dynamic counter-artillery missions triggered by UK artillery groups firing at zones
+  - When a UK artillery group starts firing, a Red air intercept mission is automatically spawned targeting that specific group
+  - Aircraft are spawned from the nearest active Red airbase and injected with a waypoint to the live position of the firing arty group
+  - Counter-artillery missions are tracked and cleaned up automatically when the arty group is destroyed or returns to hangar
+
+### **Naval Warfare Enhancement (October 2025)**
 - **🌊 New Naval Supply & Battleship System**: Dynamic naval warfare with automatic counter-response missions
   - Battleship deployments now trigger enemy anti-ship strikes
   - Enhanced naval supply routes with intelligent AI responses
