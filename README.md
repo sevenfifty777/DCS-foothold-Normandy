@@ -23,6 +23,7 @@ A dynamic territory control mission for DCS World set in World War II Normandy, 
 - Now main mission is the nomods version, the modded version is still available but due to mods issue like the V1 launcher, some bugs will not be investigated
 
 - **🛠️ WIP Counter-Artillery System**: New dynamic counter-artillery missions triggered by UK artillery groups firing at zones
+  - Players will get mission to defend their artillery groups from enemy air strikes when they start firing
   - When a UK artillery group starts firing, a Red air intercept mission is automatically spawned targeting that specific group
   - Aircraft are spawned from the nearest active Red airbase and injected with a waypoint to the live position of the firing arty group
   - Counter-artillery missions are tracked and cleaned up automatically when the arty group is destroyed or returns to hangar
