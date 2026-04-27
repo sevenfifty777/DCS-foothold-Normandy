@@ -127,7 +127,7 @@ flavor = {
 
 }
 
-FootholdSaveBaseName = (Era == 'Coldwar') and 'foothold_normandy_1.0' or 'foothold_normandy_1.0'
+FootholdSaveBaseName = (Era == 'Coldwar') and 'foothold_normandy_nomods_1.0' or 'foothold_normandy_nomods_1.0'
 
 local filepath = FootholdSaveBaseName .. '.lua'
 if lfs then
@@ -273,7 +273,7 @@ AllowScriptedSupplies = AllowScriptedSupplies ~= false
 
 bc = BattleCommander:new(filepath, 10, 60)
 if RankingSystem then
-bc.rankFile = (lfs and (lfs.writedir()..'Missions/Saves/Foothold_Ranks.lua')) or 'Foothold_Ranks.lua'
+bc.rankFile = (lfs and (lfs.writedir()..'Missions/Saves/Foothold_Ranks_WWII.lua')) or 'Foothold_Ranks_WWII.lua'
 env.info('Foothold - Rank file path: '..bc.rankFile)
 end
 Hunt = true
@@ -1154,6 +1154,97 @@ bc:addConnectionSupply("Paris","Saint-Andre","train")
 bc:addConnectionSupply("Saint-Andre","Bernay","train")
 
 
+-- ============================================================================
+-- WWII Coalition Aircraft Filtering
+-- ============================================================================
+-- Applies blueAircraftWWII / redAircraftWWII (defined in Foothold Config) to a
+-- specific airbase warehouse.  Called at startup and after every zone capture.
+--   side == 2  → Allied aircraft only (Red types zeroed)
+--   side == 1  → Axis aircraft only   (Blue types zeroed)
+--   side == 0  → Both zeroed          (contested airbase, empty warehouse)
+local function applyWWIIAircraftToAirbase(airbaseName, side)
+    if not airbaseName then return end
+    local storage = STORAGE:FindByName(airbaseName)
+    if not storage then return end
+
+    local blue = blueAircraftWWII or {}
+    local red  = redAircraftWWII  or {}
+
+    -- Build allow set for fast lookup
+    local allowList
+    if side == 2 then
+        allowList = blue
+    elseif side == 1 then
+        allowList = red
+    else
+        allowList = {}  -- contested: no aircraft
+    end
+    local allowSet = {}
+    for _, v in ipairs(allowList) do allowSet[v] = true end
+
+    -- 1. Zero the explicit modern/cold-war exclusion list (both sides, always)
+    for _, acName in ipairs(excludedAircraftWWII or {}) do
+        if not allowSet[acName] then
+            pcall(storage.SetItem, storage, acName, 0)
+        end
+    end
+
+    -- 2. Zero the opposite WWII coalition's aircraft
+    local oppositeList = (side == 2) and red or blue
+    for _, acName in ipairs(oppositeList) do
+        pcall(storage.SetItem, storage, acName, 0)
+    end
+
+    -- 3. Zero all restockAircraft entries (community mod & modern aircraft
+    --    that checkWeaponsList may have set to unlimited at this airbase)
+    for _, acName in ipairs(restockAircraft or {}) do
+        if not allowSet[acName] then
+            pcall(storage.SetItem, storage, acName, 0)
+        end
+    end
+
+    -- 4. Zero anything else currently in the warehouse inventory that is not
+    --    in the allow list (catches Limited aircraft set in ME for modern types)
+    local acInventory = storage:GetInventory()
+    if type(acInventory) == "table" then
+        for acName, _ in pairs(acInventory) do
+            if not allowSet[acName] then
+                pcall(storage.SetItem, storage, acName, 0)
+            end
+        end
+    end
+
+    -- 5. Set allow list to unlimited
+    for _, acName in ipairs(allowList) do
+        pcall(storage.SetItem, storage, acName, 1073741823)
+    end
+
+    env.info("WWII_Aircraft: side="..tostring(side).." applied to "..airbaseName)
+end
+
+-- Startup: run 5 s after mission load so the framework's own checkWeaponsList
+-- (which fires at T+1 s) has finished before we override WWII plane quantities.
+SCHEDULER:New(nil, function()
+    for _, zref in ipairs(bc:getZones() or {}) do
+        local z = bc.indexedZones and bc.indexedZones[zref.zone]
+        if z and z.airbaseName then
+            applyWWIIAircraftToAirbase(z.airbaseName, z.side)
+        end
+    end
+end, {}, 5)
+
+-- Capture hooks: re-apply whenever any zone with an airbase changes sides.
+-- 3 s internal delay gives the framework time to update sender.side first.
+for zoneName, z in pairs(zones) do
+    if z and z.airbaseName then
+        local capturedAirbaseName = z.airbaseName   -- upvalue safe for closure
+        z:registerTrigger('lost', function(event, sender)
+            SCHEDULER:New(nil, function()
+                applyWWIIAircraftToAirbase(capturedAirbaseName, sender.side)
+            end, {}, 3)
+        end, 'wwii_ac_filter_' .. zoneName)
+    end
+end
 
 
 

@@ -21,6 +21,7 @@ dist/
 release/
 archive/
 new templates logic/
+Feature test/
 
 # Ignore zip archives
 # *.zip

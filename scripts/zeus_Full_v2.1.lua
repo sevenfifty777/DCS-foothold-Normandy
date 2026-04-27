@@ -11,6 +11,7 @@ napalmCounter = 1
 options = {
   ["napalm"] = false, 
   ["phosphor"] = false, 
+  ["WWIIOnly"] = true,  -- If true, only WWII aircraft can be spawned (era="wwii")
 }
 
 -- Text exclusion system - Add patterns here to ignore in F10 marker events
@@ -529,6 +530,7 @@ local aircraftConfigs = {
     -- WWII Aircraft
     ["p51"] = {
         template = "wwii",
+        era = "wwii",
         type = "P-51D-30-NA",
         livery = "USAF 363rd FS, 357th FG DESERT RAT",
         altitude = 1524,
@@ -546,6 +548,7 @@ local aircraftConfigs = {
     
     ["spit"] = {
         template = "wwii",
+        era = "wwii",
         type = "SpitfireLFMkIX",
         livery = "403 rcaf beurling",
         altitude = 1524,
@@ -563,6 +566,7 @@ local aircraftConfigs = {
     
     ["mossie"] = {
         template = "wwii",
+        era = "wwii",
         type = "MosquitoFBMkVI",
         livery = "305sqn july",
         altitude = 1524,
@@ -584,6 +588,7 @@ local aircraftConfigs = {
     
     ["bf109"] = {
         template = "wwii",
+        era = "wwii",
         type = "Bf-109K-4",
         livery = "Bf-109 K4 Jagdgeschwader 53",
         altitude = 1524,
@@ -604,6 +609,7 @@ local aircraftConfigs = {
     
     ["fw190a8"] = {
         template = "wwii",
+        era = "wwii",
         type = "FW-190A8",
         livery = "FW-190A8_2.JG 54",
         altitude = 1524,
@@ -621,6 +627,7 @@ local aircraftConfigs = {
     
     ["fw190d9"] = {
         template = "wwii",
+        era = "wwii",
         type = "FW-190D9",
         livery = "FW-190D9_13.JG 51_Heinz Marquardt",
         altitude = 1524,
@@ -638,6 +645,7 @@ local aircraftConfigs = {
     
     ["ju88"] = {
         template = "bomber",
+        era = "wwii",
         type = "Ju-88A4",
         livery = "ju-88a4",
         altitude = 1524,
@@ -1604,6 +1612,11 @@ function zeus.createAircraft(pmodel, coalitionOverride)
     local config = aircraftConfigs[pmodel]
     if not config then
         trigger.action.outText("Unknown aircraft model: " .. pmodel, 10, false)
+        return
+    end
+
+    if options.WWIIOnly and config.era ~= "wwii" then
+        trigger.action.outText("WWIIOnly mode is active: only WWII aircraft can be spawned.", 10, false)
         return
     end
     

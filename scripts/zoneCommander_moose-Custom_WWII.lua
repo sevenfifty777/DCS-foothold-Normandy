@@ -3682,8 +3682,12 @@ end
 ejectedPilotOwners = {}
 landedPilotOwners = {}
 
-_globalArrowCounter = 1201
-_activeArrowIds = {}
+_globalArrowCounter = _globalArrowCounter or 1201
+_activeArrowIds = _activeArrowIds or {}
+-- Start arrow IDs well above mission mark IDs to avoid collisions
+local ARROW_ID_OFFSET = 1000000
+local supplyArrowCounter = (missionMarkId or 900000000) + ARROW_ID_OFFSET
+local supplyActiveArrowIds = {}
 
 MissionTargets        = {}
 MissionGroups         = {}
@@ -7028,8 +7032,8 @@ function BattleCommander:new(savepath, updateFrequency, saveFrequency, difficult
 		obj._fsmCrashReported = false
 		obj._fsmCrashVersion = FootholdSaveBaseName
 
-		obj.rankThresholds = obj.rankThresholds or {0,3000,5000,8000,12000,16000,22000,30000,45000,65000,90000}
-		obj.rankNames      = obj.rankNames      or {"Recruit","Aviator","Airman","Senior Airman","Staff Sergeant","Technical Sergeant","Master Sergeant","Senior Master Sergeant","Chief Master Sergeant","Second Lieutenant","First Lieutenant"}
+		obj.rankThresholds = obj.rankThresholds or {0,1500,2500,4000,6000,8000,11000,15000,22500,32500,45000}
+		obj.rankNames      = obj.rankNames      or {"Aviation Cadet","Private","Corporal","Sergeant","Staff Sergeant","Technical Sergeant","Master Sergeant","Warrant Officer","Flight Officer","Second Lieutenant","First Lieutenant"}
 		
 		
 		setmetatable(obj, self)
@@ -15680,6 +15684,9 @@ BattleCommander.supplyArrowDebounce = BattleCommander.supplyArrowDebounce or {
 	scheduledFunction = nil
 }
 
+-- Per-connection mapping of supply arrow IDs (preserved across draws)
+BattleCommander.supplyArrowIds = BattleCommander.supplyArrowIds or {}
+
 function BattleCommander:drawSupplyArrowsDebounced(forceImmediate)
 	local currentTime = timer.getAbsTime()
 	local timeSinceLastCall = currentTime - self.supplyArrowDebounce.lastCallTime
@@ -15719,16 +15726,17 @@ end
 
 function BattleCommander:drawSupplyArrows()
 -- Clear existing arrows
-for _, id in ipairs(_activeArrowIds) do
-trigger.action.removeMark(id)
+for _, id in ipairs(supplyActiveArrowIds) do
+	trigger.action.removeMark(id)
 end
-_activeArrowIds = {} -- Reset the list of active arrow IDs
+supplyActiveArrowIds = {} -- Reset the list of active arrow IDs
 
 if not self.connectionssupply or #self.connectionssupply == 0 then
 return
 end
 
 for i, v in ipairs(self.connectionssupply) do
+	local key = tostring(v.from) .. ">" .. tostring(v.to)
 local from = CustomZone:getByName(v.from)
 local to = CustomZone:getByName(v.to)
 
@@ -15779,9 +15787,19 @@ local skipArrow = false
 
 -- Draw arrow unless it's a destroyed train route
 if not skipArrow then
-_globalArrowCounter = _globalArrowCounter + 1 -- Get a new unique ID
-local arrowId = _globalArrowCounter
-table.insert(_activeArrowIds, arrowId)
+	-- remove any existing arrow for this connection key (avoid duplicates)
+	local existingId = self.supplyArrowIds and self.supplyArrowIds[key]
+	if existingId then
+		-- safe-remove (might have been removed by the global clear already)
+		pcall(trigger.action.removeMark, existingId)
+		self.supplyArrowIds[key] = nil
+	end
+
+	supplyArrowCounter = supplyArrowCounter + 1 -- Get a new unique ID
+	local arrowId = supplyArrowCounter
+	table.insert(supplyActiveArrowIds, arrowId)
+	-- record per-connection mapping
+	self.supplyArrowIds[key] = arrowId
 
 if fromZone and toZone and from and to then
 if fromZone.side == 2 and toZone.side ~= 1  then
@@ -15790,9 +15808,23 @@ elseif fromZone.side == 1 and toZone.side ~= 2 then
 trigger.action.arrowToAll(-1, arrowId, to.point, from.point, {0, 0, 0, 0.5}, {1, 0, 0, 0.5}, 2)
 else
 trigger.action.arrowToAll(-1, arrowId, to.point, from.point, {0, 0, 0, 0.5}, {1, 1, 1, 0.5}, 2)
+	end
+	-- track seen keys for pruning
+	seenKeys = seenKeys or {}
+	seenKeys[key] = true
 end
 end
 end
+end
+
+-- prune stale per-connection arrows that were not re-drawn
+if type(self.supplyArrowIds) == 'table' then
+	for k, id in pairs(self.supplyArrowIds) do
+		if not (seenKeys and seenKeys[k]) then
+			pcall(trigger.action.removeMark, id)
+			self.supplyArrowIds[k] = nil
+		end
+	end
 end
 end
 
@@ -15833,7 +15865,7 @@ end
 function BattleCommander:DrawConnectionLines()
 env.info("DEBUG: Drawiing Connection lines")
 for _, id in ipairs(_activeArrowIds) do
-trigger.action.removeMark(id)
+	trigger.action.removeMark(id)
 end
 _activeArrowIds = {}
 self.ConnectionArrowIds = {}
@@ -15942,6 +15974,11 @@ function BattleCommander:RefreshConnectionsLines(zoneName)
 				end
 			end
 		end
+	end
+
+	-- Ensure supply arrows also refresh when connections are refreshed
+	if self.drawSupplyArrowsDebounced then
+		pcall(function() self:drawSupplyArrowsDebounced(true) end)
 	end
 end
 
